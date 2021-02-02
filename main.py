@@ -1,14 +1,14 @@
 import csv
 import datetime
+import time
+import credentials
+import sys
+import sqlite3
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.by import By
-import time
-import credentials
-import sys
-import sqlite3
 
 PACKAGE_SIZE = 140  # data units
 MONTH = 30  # days
@@ -41,8 +41,8 @@ def create_record():
     options.add_argument("--disable-gpu")
     options.add_experimental_option("excludeSwitches", ["enable-logging"])
     options.add_argument("--log-level=3")
-
     browser = webdriver.Chrome(options=options)
+
     browser.get(LOGIN_URL)
 
     try:
