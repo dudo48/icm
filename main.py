@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 import time
 import credentials
 import sys
+import sqlite3
 
 PACKAGE_SIZE = 140  # data units
 MONTH = 30  # days
@@ -20,6 +21,7 @@ DELIMITER = ','
 TIMEOUT = 120  # time to wait for page to load the required element
 REPORT_ROW_WIDTH = 40  # spaces to leave after each entry in report
 MAXIMUM_TRIES = 5       # maximum amount to retry to get the record in case of failure
+RETRY_INTERVAL = 10
 
 
 def type_slowly(browser, element_id, text, delay):
@@ -33,6 +35,7 @@ def type_slowly(browser, element_id, text, delay):
 
 def create_record():
     # log in and get required data
+    print("Opening browser...")
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--disable-gpu")
@@ -43,6 +46,7 @@ def create_record():
     browser.get(LOGIN_URL)
 
     try:
+        print("Logging in...")
         type_slowly(browser, "MobileNumberID", credentials.USERNAME, 0.1)
         type_slowly(browser, "PasswordID", credentials.PASSWORD, 0.1)
         sign_in_element = WebDriverWait(browser, TIMEOUT).until(
@@ -52,6 +56,7 @@ def create_record():
         time.sleep(5)
         browser.get(USAGE_URL)
 
+        print("Grabbing data...")
         days_left_element = WebDriverWait(browser, TIMEOUT).until(
             expected_conditions.presence_of_element_located((By.CSS_SELECTOR, DAYS_LEFT_SELECTOR))
         )
@@ -73,9 +78,10 @@ def create_record():
         browser.quit()
         return []
 
+    print("Creating new record...")
     consumption_in_between = round(float(last_day_data["remaining units"]) - remaining_units, 2)
 
-    last_date = datetime.datetime.strptime(last_day_data["date"], "%Y-%m-%d")   # string to datetime object
+    last_date = datetime.datetime.strptime(last_day_data["date"], "%Y-%m-%d").date()   # string to datetime object
     today_date = datetime.date.today()
     # new monthly package started
     if days_left > int(last_day_data["days left"]) or abs(today_date - last_date).days >= MONTH:
@@ -99,13 +105,24 @@ def create_record():
     return new_row
 
 
-def add_to_database(new_row):
+def add_to_csv_database(new_row):
+    print("Adding record to CSV database...")
     with open("database.csv", mode='a') as writer:
         writer.write('\n' + new_row)
         writer.close()
 
 
-def create_today_report(row):
+def add_to_sql_database(new_row):
+    print("Adding record to SQL database...")
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO InternetConsumption VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", tuple(new_row))
+    conn.commit()
+    conn.close()
+
+
+def create_report(row):
+    print("Creating report...")
     today_report = ""
 
     for i in range(len(table_headers)):
@@ -136,12 +153,17 @@ def main():
             break
         if tries == MAXIMUM_TRIES - 1:
             sys.exit(1)     # used up all tries and failed
-        time.sleep(10)      # wait some time before retrying
+        print(f"Task failed: {MAXIMUM_TRIES - tries - 1} tries left.")
+        print(f"Retrying in {RETRY_INTERVAL} seconds...")
+        time.sleep(RETRY_INTERVAL)      # wait some time before retrying
 
+    add_to_sql_database(row)
     row_string = DELIMITER.join(row)
-    add_to_database(row_string)
-    set_last_day_data(row_string)
-    create_today_report(row)
+    add_to_csv_database(row_string)
+    # set_last_day_data(row_string)
+    create_report(row)
+
+    print("Done!")
     sys.exit(0)
 
 
