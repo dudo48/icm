@@ -107,14 +107,14 @@ def create_record():
 
 def add_to_csv_database(new_row):
     print("Adding record to CSV database...")
-    with open("database.csv", mode='a') as writer:
+    with open("databases/database.csv", mode='a') as writer:
         writer.write('\n' + new_row)
         writer.close()
 
 
 def add_to_sql_database(new_row):
     print("Adding record to SQL database...")
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect("databases/database.db")
     cursor = conn.cursor()
     cursor.execute("INSERT INTO InternetConsumption VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", tuple(new_row))
     conn.commit()
@@ -140,7 +140,7 @@ def create_report(row):
 
 # saves today data to separate file for quick access the next run of the program
 def set_last_day_data(today_data):
-    with open("last_day_data.csv", mode='w') as writer:
+    with open("databases/last_day_data.csv", mode='w') as writer:
         writer.write(today_data)
         writer.close()
 
@@ -169,13 +169,13 @@ def main():
 
 if __name__ == "__main__":
     # get table headers
-    with open("database.csv", mode='r') as database:
+    with open("databases/database.csv", mode='r') as database:
         csv_reader = csv.reader(database, delimiter=DELIMITER)
         table_headers = next(csv_reader)
         database.close()
 
     # access last day data
-    with open("last_day_data.csv", mode='r') as last_data:
+    with open("databases/last_day_data.csv", mode='r') as last_data:
         csv_reader = csv.reader(last_data, delimiter=DELIMITER)
         last_day_data = dict(zip(table_headers, next(csv_reader)))
         last_data.close()
