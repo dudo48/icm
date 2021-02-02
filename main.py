@@ -160,7 +160,7 @@ def main():
     add_to_sql_database(row)
     row_string = DELIMITER.join(row)
     add_to_csv_database(row_string)
-    # set_last_day_data(row_string)
+    set_last_day_data(row_string)
     create_report(row)
 
     print("Done!")
