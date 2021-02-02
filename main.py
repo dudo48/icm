@@ -32,9 +32,6 @@ def type_slowly(browser, element_id, text, delay):
 
 
 def create_record():
-    today_date = datetime.datetime.now()
-    date = str(today_date.day).zfill(2) + '/' + str(today_date.month).zfill(2) + '/' + str(today_date.year).zfill(4)
-
     # log in and get required data
     options = Options()
     options.add_argument("--headless")
@@ -77,7 +74,9 @@ def create_record():
         return []
 
     consumption_in_between = round(float(last_day_data["remaining units"]) - remaining_units, 2)
-    last_date = datetime.datetime.strptime(last_day_data["date"], "%d/%m/%Y")   # string to datetime object
+
+    last_date = datetime.datetime.strptime(last_day_data["date"], "%Y-%m-%d")   # string to datetime object
+    today_date = datetime.date.today()
     # new monthly package started
     if days_left > int(last_day_data["days left"]) or abs(today_date - last_date).days >= MONTH:
         consumption_in_between = round(PACKAGE_SIZE - remaining_units, 2)
@@ -87,7 +86,7 @@ def create_record():
     average_consumption = round(consumed_units / (MONTH - days_left + 1), 2)
 
     new_row = []
-    new_row.append(date)
+    new_row.append(str(today_date))
     new_row.append(str(days_left))
     new_row.append(str(package_size))
     new_row.append(str(consumed_units))
