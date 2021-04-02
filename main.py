@@ -79,6 +79,19 @@ def create_record():
         return []
 
     print("Creating new record...")
+
+    # get table headers
+    with open("databases/database.csv", mode='r') as database:
+        csv_reader = csv.reader(database, delimiter=DELIMITER)
+        table_headers = next(csv_reader)
+        database.close()
+
+    # access last day data
+    with open("databases/last_day_data.csv", mode='r') as last_data:
+        csv_reader = csv.reader(last_data, delimiter=DELIMITER)
+        last_day_data = dict(zip(table_headers, next(csv_reader)))
+        last_data.close()
+
     consumption_in_between = round(float(last_day_data["remaining units"]) - remaining_units, 2)
 
     last_date = datetime.datetime.strptime(last_day_data["date"], "%Y-%m-%d").date()   # string to datetime object
@@ -125,6 +138,12 @@ def create_report(row):
     print("Creating report...")
     today_report = ""
 
+    # get table headers
+    with open("databases/database.csv", mode='r') as database:
+        csv_reader = csv.reader(database, delimiter=DELIMITER)
+        table_headers = next(csv_reader)
+        database.close()
+
     for i in range(len(table_headers)):
         table_headers[i] = table_headers[i].title()  # capitalize each word of the string
         today_report += table_headers[i] + ":" + (" " * (REPORT_ROW_WIDTH - len(table_headers[i]))) + row[i]
@@ -168,16 +187,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # get table headers
-    with open("databases/database.csv", mode='r') as database:
-        csv_reader = csv.reader(database, delimiter=DELIMITER)
-        table_headers = next(csv_reader)
-        database.close()
-
-    # access last day data
-    with open("databases/last_day_data.csv", mode='r') as last_data:
-        csv_reader = csv.reader(last_data, delimiter=DELIMITER)
-        last_day_data = dict(zip(table_headers, next(csv_reader)))
-        last_data.close()
-
     main()
