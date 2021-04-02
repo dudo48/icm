@@ -1,3 +1,9 @@
-import schedule
+import main
 
-schedule.
+
+def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()
