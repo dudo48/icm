@@ -164,7 +164,7 @@ def set_last_day_data(today_data):
         writer.close()
 
 
-def main():
+def run():
     row = []
     for tries in range(MAXIMUM_TRIES):
         row = create_record()
@@ -187,4 +187,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run()
