@@ -10,13 +10,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.by import By
 
-PACKAGE_SIZE = 140  # data units
 MONTH = 30  # days
 LOGIN_URL = "https://my.te.eg/#/home/signin"
 USAGE_URL = "https://my.te.eg/#/offering/usage"
 DAYS_LEFT_SELECTOR = "div.row:nth-child(4) > div:nth-child(2)"
 PACKAGE_SIZE_SELECTOR = ".text-center > strong:nth-child(2)"
-REMAINING_UNITS_SELECTOR = "span.text-dir:nth-child(4)"
+REMAINING_UNITS_SELECTOR = ".circle-progress > circle-progress:nth-child(2) > svg:nth-child(1) > text:nth-child(4) > tspan:nth-child(4)"
 DELIMITER = ','
 TIMEOUT = 120  # time to wait for page to load the required element
 REPORT_ROW_WIDTH = 40  # spaces to leave after each entry in report
@@ -70,7 +69,7 @@ def create_record():
         days_left = int(days_left_element.text.split(' ')[0])
         package_size = float(package_size_element.text.split(' ')[3])
         consumed_units = float(package_size_element.text.split(' ')[0])
-        remaining_units = float(remaining_units_element.text.split(' ')[1])
+        remaining_units = float(remaining_units_element.text)
         browser.quit()
 
     except Exception:
@@ -98,7 +97,7 @@ def create_record():
     today_date = datetime.date.today()
     # new monthly package started
     if days_left > int(last_day_data["days left"]) or abs(today_date - last_date).days >= MONTH:
-        consumption_in_between = round(PACKAGE_SIZE - remaining_units, 2)
+        consumption_in_between = round(package_size - remaining_units, 2)
 
     consumed_percentage = round(float(consumed_units) / float(package_size), 3)
     projected_consumption = round(remaining_units / days_left, 2)
