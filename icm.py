@@ -1,32 +1,26 @@
 import csv
 import datetime
+import selectors
 import time
 import credentials
 import sys
 import sqlite3
+import urls
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.by import By
 
+
 MONTH = 30  # days
-LOGIN_URL = "https://my.te.eg/#/home/signin"
-USAGE_URL = "https://my.te.eg/#/offering/usage"
-DAYS_LEFT_SELECTOR = "div.row:nth-child(4) > div:nth-child(2)"
-PACKAGE_SIZE_SELECTOR = ".text-center > strong:nth-child(2)"
-REMAINING_UNITS_SELECTOR = ".circle-progress > circle-progress:nth-child(2) > svg:nth-child(1) > text:nth-child(4) > tspan:nth-child(4)"
 DELIMITER = ','
 TIMEOUT = 120  # time to wait for page to load the required element
-REPORT_ROW_WIDTH = 40  # spaces to leave after each entry in report
 MAXIMUM_TRIES = 5       # maximum amount to retry to get the record in case of failure
 RETRY_INTERVAL = 10
 
 
-def type_slowly(browser, element_id, text, delay):
-    element = WebDriverWait(browser, TIMEOUT).until(
-        expected_conditions.presence_of_element_located((By.ID, element_id))
-    )
+def type_slowly(element, text, delay):
     for char in text:
         element.send_keys(char)
         time.sleep(delay)
@@ -40,16 +34,27 @@ def create_record():
     options.add_argument("--disable-gpu")
     options.add_experimental_option("excludeSwitches", ["enable-logging"])
     options.add_argument("--log-level=3")
-    browser = webdriver.Chrome(options=options)
+    browser = webdriver.Chrome()#options=options)
 
-    browser.get(LOGIN_URL)
+    browser.get(urls.LOGIN)
 
     try:
         print("Logging in...")
-        type_slowly(browser, "MobileNumberID", credentials.USERNAME, 0.1)
-        type_slowly(browser, "PasswordID", credentials.PASSWORD, 0.1)
+
+        # type user name/number
+        service_number_element = WebDriverWait(browser, TIMEOUT).until(
+            expected_conditions.presence_of_element_located((By.CSS_SELECTOR, selectors.SERVICE_NUMBER))
+        )
+        type_slowly(service_number_element, credentials.USERNAME, 0.1)
+
+        # type password
+        password_element = WebDriverWait(browser, TIMEOUT).until(
+            expected_conditions.presence_of_element_located((By.CSS_SELECTOR, selectors.PASSWORD))
+        )
+        type_slowly(password_element, credentials.PASSWORD, 0.1)
+
         sign_in_element = WebDriverWait(browser, TIMEOUT).until(
-            expected_conditions.presence_of_element_located((By.ID, "singInBtn"))
+            expected_conditions.presence_of_element_located((By.CSS_SELECTOR, selectors.SIGN_IN_BUTTON))
         )
         sign_in_element.click()
         time.sleep(5)

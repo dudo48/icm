@@ -1,0 +1,6 @@
+SERVICE_NUMBER = ".p-inputmask"
+PASSWORD = "#password"
+SIGN_IN_BUTTON = "button.w-100:nth-child(4)"
+DAYS_LEFT = ".mr-auto"
+CONSUMED_UNITS = ".usage-details"
+REMAINING_UNITS = ".remaining-details"
