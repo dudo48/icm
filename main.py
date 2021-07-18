@@ -1,13 +1,37 @@
+import sys
 import time
-
+import constants
+import storage
 from scraper import Scraper
 
 
 def main():
-    scraper = Scraper(True)
-    scraper.login()
+    record = []
+    for tries in range(constants.MAXIMUM_TRIES):
+        print("Opening browser...")
+        scraper = Scraper()
+        try:
+            print("Logging In...")
+            scraper.login()
+            time.sleep(5)
+            print("Grabbing Data...")
+            record = scraper.create_record()
+            break
+        except ZeroDivisionError:
+            print(f"Task failed: {constants.MAXIMUM_TRIES - tries - 1} tries left.")
+            if tries == constants.MAXIMUM_TRIES - 1:
+                return 1  # used up all tries and failed
+            print(f"Retrying in {constants.RETRY_INTERVAL} seconds...")
+            time.sleep(constants.RETRY_INTERVAL)  # wait some time before retrying
+
+    print("Adding Data To Databases...")
+    storage.add_to_sql_database(record)
+    storage.add_to_csv_database(record)
+    storage.set_previous_record(record)
+    storage.create_report(record)
+    print("Done!")
+    return 0
 
 
 if __name__ == '__main__':
-    main()
-    time.sleep(10)
+    sys.exit(main())

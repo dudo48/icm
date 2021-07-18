@@ -1,15 +1,14 @@
 import datetime
 import pickle
+import time
 
 import constants
-import selectors
-
+import css_selectors
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.by import By
-
 import credentials
 import urls
 import utility
@@ -31,21 +30,24 @@ class Scraper:
     def login(self):
 
         self.browser.get(urls.LOGIN)
+
         # type user name/number
         service_number_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
-            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, selectors.SERVICE_NUMBER))
+            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.SERVICE_NUMBER))
         )
+        service_number_element.click()
         utility.type_slowly(service_number_element, credentials.USERNAME)
 
         # type password
         password_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
-            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, selectors.PASSWORD))
+            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.PASSWORD))
         )
+        password_element.click()
         utility.type_slowly(password_element, credentials.PASSWORD)
 
         # click log in button
         sign_in_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
-            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, selectors.SIGN_IN_BUTTON))
+            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.SIGN_IN_BUTTON))
         )
         sign_in_element.click()
 
@@ -53,30 +55,33 @@ class Scraper:
         self.browser.get(urls.OVERVIEW)
 
         days_left_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
-            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, selectors.DAYS_LEFT))
+            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.DAYS_LEFT))
         )
+        time.sleep(1)
 
-        days_left = int(days_left_element.text.split(' ')[3])
+        days_left = int(days_left_element.text.split()[3])
         return days_left
 
     def get_consumed_units(self):
         self.browser.get(urls.USAGE)
 
         consumed_units_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
-            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, selectors.CONSUMED_UNITS))
+            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.CONSUMED_UNITS))
         )
+        time.sleep(1)
 
-        consumed_units = float(consumed_units_element.text.split(' ')[0])
+        consumed_units = float(consumed_units_element.text.split()[0])
         return consumed_units
 
     def get_remaining_units(self):
         self.browser.get(urls.USAGE)
 
         remaining_units_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
-            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, selectors.REMAINING_UNITS))
+            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.REMAINING_UNITS))
         )
+        time.sleep(1)
 
-        remaining_units = float(remaining_units_element.text.split(' ')[0])
+        remaining_units = float(remaining_units_element.text.split()[0])
         return remaining_units
 
     def create_record(self):
@@ -89,6 +94,7 @@ class Scraper:
         projected_consumption = round(remaining_units / days_left, 2)
         average_consumption = round(consumed_units / (constants.MONTH - days_left + 1), 2)
 
+        # calculate consumption in between using previous record data
         with open("previous_record", 'rb') as file:
             previous_record = pickle.load(file)
             previous_consumed_units = previous_record[3]
