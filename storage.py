@@ -25,7 +25,7 @@ def create_report(record):
     record = utility.string_list(record)
     with open("report.txt", mode='w') as file:
         for i in range(len(constants.TABLE_HEADERS)):
-            file.write("{:<60}{}\n".format(constants.TABLE_HEADERS[i] + ':', record[i]))  # aligned lines
+            file.write("{:<40}{}\n".format(constants.TABLE_HEADERS[i] + ':', record[i]))  # aligned lines
         file.close()
 
 
