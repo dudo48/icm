@@ -16,8 +16,10 @@ def main():
             time.sleep(5)
             print("Grabbing Data...")
             record = scraper.create_record()
+            scraper.browser.quit()
             break
         except ZeroDivisionError:
+            scraper.browser.quit()
             print(f"Task failed: {constants.MAXIMUM_TRIES - tries - 1} tries left.")
             if tries == constants.MAXIMUM_TRIES - 1:
                 return 1  # used up all tries and failed
