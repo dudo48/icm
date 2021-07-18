@@ -32,6 +32,7 @@ def main():
     storage.set_previous_record(record)
     storage.create_report(record)
     print("Done!")
+    time.sleep(5)
     return 0
 
 
