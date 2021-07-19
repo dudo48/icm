@@ -6,6 +6,7 @@ def type_slowly(element, text):
     for char in text:
         time.sleep(0.1)
         element.send_keys(char)
+        time.sleep(0.1)
 
 
 # convert all list elements to string
