@@ -1,17 +1,16 @@
 import pickle
 import time
 import datetime
-import constants
-import main
+from src import constants, main
 
 
 def get_previous_record_datetime():
-    with open("previous_record_datetime", 'rb') as date_file:
+    with open("../persistent/previous_record_datetime", 'rb') as date_file:
         return pickle.load(date_file)
 
 
 def set_previous_record_datetime(value):
-    with open("previous_record_datetime", 'wb') as datetime_file:
+    with open("../persistent/previous_record_datetime", 'wb') as datetime_file:
         return pickle.dump(value, datetime_file)
 
 
@@ -29,9 +28,12 @@ def run():
         next_run_end = datetime.datetime.combine(next_run_date, constants.END_HOUR)
 
         if next_run_start <= current_datetime <= next_run_end:
-            main.main()
-            set_previous_record_datetime(current_datetime)
-            print("New record successfully created.")
+            exit_code = main.run()
+            if exit_code == 0:
+                set_previous_record_datetime(current_datetime)
+                print("New record successfully created.")
+            elif exit_code == 1:
+                print("Error.")
         else:
             seconds_to_sleep = (next_run_start - current_datetime).total_seconds()
             print(f"I will sleep for {seconds_to_sleep / 3600} hour(s).")

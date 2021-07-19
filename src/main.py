@@ -1,11 +1,10 @@
 import sys
 import time
-import constants
-import storage
-from scraper import Scraper
+from src import constants, storage
+from src.scraper import Scraper
 
 
-def main():
+def run():
     record = []
     for tries in range(constants.MAXIMUM_TRIES):
         print("Opening browser...")
@@ -18,7 +17,7 @@ def main():
             record = scraper.create_record()
             scraper.browser.quit()
             break
-        except ZeroDivisionError:
+        except:
             scraper.browser.quit()
             print(f"Task failed: {constants.MAXIMUM_TRIES - tries - 1} tries left.")
             if tries == constants.MAXIMUM_TRIES - 1:
@@ -37,4 +36,4 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(run())

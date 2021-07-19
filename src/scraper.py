@@ -2,16 +2,12 @@ import datetime
 import pickle
 import time
 
-import constants
-import css_selectors
+from src import constants, utility, css_selectors, urls, credentials
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.by import By
-import credentials
-import urls
-import utility
 
 
 class Scraper:
@@ -95,7 +91,7 @@ class Scraper:
         average_consumption = round(consumed_units / (constants.MONTH - days_left + 1), 2)
 
         # calculate consumption in between using previous record data
-        with open("previous_record", 'rb') as file:
+        with open("../persistent/previous_record", 'rb') as file:
             previous_record = pickle.load(file)
             previous_consumed_units = previous_record[3]
             consumption_in_between = round(consumed_units - previous_consumed_units, 2)
