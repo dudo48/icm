@@ -28,6 +28,7 @@ def run():
         next_run_end = datetime.datetime.combine(next_run_date, constants.END_HOUR)
 
         if next_run_start <= current_datetime <= next_run_end:
+            print("Running ICM...")
             exit_code = main.run()
             if exit_code == 0:
                 set_previous_record_datetime(current_datetime)
