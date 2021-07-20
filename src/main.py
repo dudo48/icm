@@ -1,7 +1,8 @@
 import sys
 import time
-from src import constants, storage
-from src.scraper import Scraper
+import constants
+import storage
+from scraper import Scraper
 
 
 def run():

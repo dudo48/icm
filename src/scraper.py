@@ -1,8 +1,11 @@
 import datetime
 import pickle
 import time
-
-from src import constants, utility, css_selectors, urls, credentials
+import constants
+import utility
+import css_selectors
+import urls
+import credentials
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait

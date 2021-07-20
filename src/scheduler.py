@@ -1,7 +1,9 @@
+import datetime
+import os
 import pickle
 import time
-import datetime
-from src import constants, main
+import main
+import constants
 
 
 def get_previous_record_datetime():
@@ -16,6 +18,7 @@ def set_previous_record_datetime(value):
 
 def run():
     while True:
+        print(os.getcwd())
         current_datetime = datetime.datetime.now()
         previous_datetime = get_previous_record_datetime()
 
@@ -37,7 +40,7 @@ def run():
                 print("Error.")
         else:
             seconds_to_sleep = (next_run_start - current_datetime).total_seconds()
-            print(f"I will sleep for {seconds_to_sleep / 3600} hour(s).")
+            print(f"{round(seconds_to_sleep / 3600, 2)} hour(s) till next ICM run.")
             time.sleep(seconds_to_sleep)
 
 

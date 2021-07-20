@@ -1,6 +1,7 @@
 import pickle
 import sqlite3
-from src import constants, utility
+import constants
+import utility
 
 
 def add_to_csv_database(record):
