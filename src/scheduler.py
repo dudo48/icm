@@ -19,7 +19,6 @@ def set_previous_record_datetime(value):
 
 def run():
     while True:
-        print(os.getcwd())
         current_datetime = datetime.datetime.now()
         previous_datetime = get_previous_record_datetime()
 
