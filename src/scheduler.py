@@ -1,4 +1,5 @@
 import datetime
+import math
 import os
 import pickle
 import time
@@ -39,9 +40,9 @@ def run():
             elif exit_code == 1:
                 print("Error.")
         else:
-            seconds_to_sleep = (next_run_start - current_datetime).total_seconds()
-            print(f"Next ICM run in {round(seconds_to_sleep / 3600, 2)} hour(s).")
-            time.sleep(seconds_to_sleep)
+            check_duration = datetime.timedelta(seconds=constants.SCHEDULER_CHECK_INTERVAL)
+            print(f"Next check at {(current_datetime + check_duration).strftime('%H:%M:%S')}.")
+            time.sleep(constants.SCHEDULER_CHECK_INTERVAL)
 
 
 if __name__ == '__main__':
