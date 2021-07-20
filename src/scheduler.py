@@ -40,7 +40,7 @@ def run():
                 print("Error.")
         else:
             seconds_to_sleep = (next_run_start - current_datetime).total_seconds()
-            print(f"{round(seconds_to_sleep / 3600, 2)} hour(s) till next ICM run.")
+            print(f"Next ICM run in {round(seconds_to_sleep / 3600, 2)} hour(s).")
             time.sleep(seconds_to_sleep)
 
 
