@@ -36,7 +36,7 @@ def run():
                 set_previous_record_datetime(current_datetime)
                 logging.debug("New record successfully created.")
             elif exit_code == 1:
-                logging.debug("Error.")
+                logging.debug("Failed to create a new record. Exhausted all tries.")
         else:
             logging.debug(f"False check.")
             time.sleep(constants.SCHEDULER_CHECK_INTERVAL)
