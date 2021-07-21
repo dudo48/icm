@@ -34,5 +34,5 @@ def configure_logger():
 
 
 # configure logger
-logger = logging.getLogger("icm")
+logger = logging.getLogger(__name__)
 configure_logger()
