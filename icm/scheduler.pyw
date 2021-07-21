@@ -1,9 +1,9 @@
 import datetime
-import logging
 import pickle
 import time
 import main
 import constants
+import utility
 
 
 def get_previous_record_datetime():
@@ -30,15 +30,15 @@ def run():
         next_run_end = datetime.datetime.combine(next_run_date, constants.END_HOUR)
 
         if next_run_start <= current_datetime <= next_run_end:
-            logging.debug("Running ICM...")
+            utility.logger.debug("Running ICM...")
             exit_code = main.run()
             if exit_code == 0:
                 set_previous_record_datetime(current_datetime)
-                logging.debug("New record successfully created.")
+                utility.logger.debug("New record successfully created.")
             elif exit_code == 1:
-                logging.debug("Failed to create a new record. Exhausted all tries.")
+                utility.logger.debug("Failed to create a new record. Exhausted all tries.")
         else:
-            logging.debug(f"False check.")
+            utility.logger.debug(f"False check.")
             time.sleep(constants.SCHEDULER_CHECK_INTERVAL)
 
 

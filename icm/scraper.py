@@ -19,10 +19,8 @@ class Scraper:
         # initialize browser
         options = Options()
         if not debug_mode:
-            options.add_argument("--headless")
-            options.add_argument("--disable-gpu")
+            options.headless = True
             options.add_experimental_option("excludeSwitches", ["enable-logging"])
-            options.add_argument("--log-level=3")
 
         self.browser = webdriver.Chrome(options=options)
 
