@@ -1,4 +1,14 @@
+import sys
 import time
+import logging
+
+
+# configure logger
+logging.basicConfig(level=logging.DEBUG,
+                    format="[%(asctime)s] %(message)s",
+                    datefmt="%Y-%m-%d %H:%M:%S",
+                    filename="../log.txt",
+                    filemode='w')
 
 
 # selenium send keys but with a delay

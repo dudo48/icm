@@ -1,4 +1,5 @@
 import datetime
+import logging
 import pickle
 import time
 import main
@@ -29,16 +30,15 @@ def run():
         next_run_end = datetime.datetime.combine(next_run_date, constants.END_HOUR)
 
         if next_run_start <= current_datetime <= next_run_end:
-            print("Running ICM...")
+            logging.debug("Running ICM...")
             exit_code = main.run()
             if exit_code == 0:
                 set_previous_record_datetime(current_datetime)
-                print("New record successfully created.")
+                logging.debug("New record successfully created.")
             elif exit_code == 1:
-                print("Error.")
+                logging.debug("Error.")
         else:
-            check_duration = datetime.timedelta(seconds=constants.SCHEDULER_CHECK_INTERVAL)
-            print(f"Next check at {(current_datetime + check_duration).strftime('%H:%M:%S')}.")
+            logging.debug(f"False check.")
             time.sleep(constants.SCHEDULER_CHECK_INTERVAL)
 
 
