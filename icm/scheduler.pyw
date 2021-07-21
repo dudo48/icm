@@ -38,7 +38,7 @@ def run():
             elif exit_code == 1:
                 utility.logger.debug("Failed to create a new record. Exhausted all tries.")
         else:
-            utility.logger.debug(f"False check.")
+            utility.logger.debug("Not yet.")
             time.sleep(constants.SCHEDULER_CHECK_INTERVAL)
 
 
