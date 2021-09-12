@@ -11,6 +11,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from subprocess import CREATE_NO_WINDOW
 
 
 class Scraper:
@@ -18,11 +20,13 @@ class Scraper:
 
         # initialize browser
         options = Options()
+        service = Service("path/to/chromedriver")
         if not debug_mode:
             options.headless = True
             options.add_experimental_option("excludeSwitches", ["enable-logging"])
+            service.creationflags = CREATE_NO_WINDOW
 
-        self.browser = webdriver.Chrome(options=options)
+        self.browser = webdriver.Chrome(options=options, service=service)
 
     def login(self):
 
