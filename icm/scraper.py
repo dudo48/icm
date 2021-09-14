@@ -20,7 +20,7 @@ class Scraper:
 
         # initialize browser
         options = Options()
-        service = Service("path/to/chromedriver")
+        service = Service("chromedriver.exe")
         if not debug_mode:
             options.headless = True
             options.add_experimental_option("excludeSwitches", ["enable-logging"])
