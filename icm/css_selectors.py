@@ -1,5 +1,5 @@
-SERVICE_NUMBER = ".p-inputmask"
-PASSWORD = "#password"
+SERVICE_NUMBER = "#login-service-number-et"
+PASSWORD = "#login-password-et"
 SIGN_IN_BUTTON = "button.w-100:nth-child(4)"
 DAYS_LEFT = ".mr-auto"
 CONSUMED_UNITS = ".usage-details"

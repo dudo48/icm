@@ -33,10 +33,10 @@ def run():
             utility.logger.debug("Running ICM...")
             exit_code = main.run()
             if exit_code == 0:
-                set_previous_record_datetime(current_datetime)
                 utility.logger.debug("New record successfully created.")
             elif exit_code == 1:
                 utility.logger.debug("Failed to create a new record. Exhausted all tries.")
+            set_previous_record_datetime(current_datetime)
         else:
             utility.logger.debug("Not yet.")
             time.sleep(constants.SCHEDULER_CHECK_INTERVAL)
