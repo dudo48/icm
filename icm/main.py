@@ -10,7 +10,7 @@ def run():
     record = []
     for tries in range(constants.MAXIMUM_TRIES):
         utility.logger.debug("Opening browser...")
-        scraper = Scraper(True)
+        scraper = Scraper()
         try:
             utility.logger.debug("Logging in...")
             scraper.login()
