@@ -30,12 +30,7 @@ def run():
         next_run_end = datetime.datetime.combine(next_run_date, constants.END_HOUR)
 
         if next_run_start <= current_datetime <= next_run_end:
-            utility.logger.debug("Running ICM...")
-            exit_code = main.run()
-            if exit_code == 0:
-                utility.logger.debug("New record successfully created.")
-            elif exit_code == 1:
-                utility.logger.debug("Failed to create a new record. Exhausted all tries.")
+            main.run()
             set_previous_record_datetime(current_datetime)
         else:
             utility.logger.debug("Not yet.")
