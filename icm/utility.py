@@ -1,5 +1,6 @@
 import time
 import logging
+import ctypes
 
 
 # selenium send keys but with a delay
@@ -10,9 +11,14 @@ def type_slowly(element, text):
         time.sleep(0.1)
 
 
-# convert all list elements to string
+# convert all list elements to string type
 def string_list(original_list):
     return [str(element) for element in original_list]
+
+
+# function for displaying notifications (messageboxes)
+def notification(message, message_type=0):
+    return ctypes.windll.user32.MessageBoxW(0, message, "Internet Consumption Manager ICM", message_type)
 
 
 # attaches and configures the handlers for the logger
