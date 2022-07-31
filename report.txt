@@ -1,0 +1,9 @@
+Date:                                   2022-08-01
+Days Left:                              21
+Package Size:                           140.0
+Consumed Units:                         49.37
+Consumed Percentage:                    0.353
+Remaining Units:                        90.63
+Consumption In-Between:                 49.37
+Projected Daily Consumption:            4.32
+Average Consumption:                    4.94

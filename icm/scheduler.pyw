@@ -1,37 +1,42 @@
 import datetime
-import pickle
+import json
 import time
 import main
 import constants
 import utility
 
 
-def get_previous_record_datetime():
-    with open("../persistent/previous_record_datetime", 'rb') as date_file:
-        return pickle.load(date_file)
+def get_previous_record_date():
+    try:
+        with open("../persistent/previous_record_datetime.json", 'r') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return None
 
 
-def set_previous_record_datetime(value):
-    with open("../persistent/previous_record_datetime", 'wb') as datetime_file:
-        return pickle.dump(value, datetime_file)
+def set_previous_record_date(data):
+    with open("../persistent/previous_record_datetime.json", 'w') as file:
+        return json.dump(data, file, indent=4)
 
 
 def run():
     while True:
         current_datetime = datetime.datetime.now()
-        previous_datetime = get_previous_record_datetime()
+        previous_date_json = get_previous_record_date()
 
-        next_run_date = current_datetime.date()
-        if next_run_date == previous_datetime.date():
-            next_run_date += datetime.timedelta(days=1)
+        if previous_date_json:
+            previous_datetime = datetime.datetime.fromisoformat(previous_date_json['iso'])
+            next_run_date = current_datetime.date()
+            if next_run_date == previous_datetime.date():
+                next_run_date += datetime.timedelta(days=1)
 
-        # datetime objects for next run times(runs in range of start and end only once)
-        next_run_start = datetime.datetime.combine(next_run_date, constants.START_HOUR)
-        next_run_end = datetime.datetime.combine(next_run_date, constants.END_HOUR)
+            # datetime objects for next run times(runs in range of start and end only once)
+            next_run_start = datetime.datetime.combine(next_run_date, constants.START_HOUR)
+            next_run_end = datetime.datetime.combine(next_run_date, constants.END_HOUR)
 
-        if next_run_start <= current_datetime <= next_run_end:
+        if not previous_date_json or next_run_start <= current_datetime <= next_run_end:
             main.run()
-            set_previous_record_datetime(current_datetime)
+            set_previous_record_date({'iso': current_datetime.isoformat()})
         else:
             utility.logger.debug("Not yet.")
             time.sleep(constants.SCHEDULER_CHECK_INTERVAL)

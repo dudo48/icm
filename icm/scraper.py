@@ -1,7 +1,8 @@
 import datetime
-import pickle
+import json
 import time
 import constants
+import storage
 import utility
 import css_selectors
 import urls
@@ -86,7 +87,7 @@ class Scraper:
         return remaining_units
 
     def create_record(self):
-        today_date = datetime.date.today()
+        date = datetime.date.today()
         days_left = self.get_days_left()
         remaining_units = self.get_remaining_units()
         consumed_units = self.get_consumed_units()
@@ -96,27 +97,31 @@ class Scraper:
         average_consumption = round(consumed_units / (constants.MONTH - days_left + 1), 2)
 
         # calculate consumption in between using previous record data
-        with open("../persistent/previous_record", 'rb') as file:
-            previous_record = pickle.load(file)
-            previous_consumed_units = previous_record[3]
-            consumption_in_between = round(consumed_units - previous_consumed_units, 2)
+        previous_record = storage.get_previous_record()
+
+        if previous_record:
+            consumption_in_between = round(consumed_units - previous_record['consumed_units'], 2)
 
             # new monthly package started
-            previous_date = previous_record[0]
-            previous_days_left = previous_record[1]
-            if days_left > previous_days_left or abs(today_date - previous_date).days >= constants.MONTH:
+            previous_date = previous_record['date']
+            previous_days_left = previous_record['days_left']
+
+            # check if new month started
+            if days_left > previous_days_left or abs(date - previous_date).days >= constants.MONTH:
                 consumption_in_between = round(package_size - remaining_units, 2)
+        else:
+            consumption_in_between = consumed_units
 
-
-        record = []
-        record.append(today_date)
-        record.append(days_left)
-        record.append(package_size)
-        record.append(consumed_units)
-        record.append(consumed_percentage)
-        record.append(remaining_units)
-        record.append(consumption_in_between)
-        record.append(projected_consumption)
-        record.append(average_consumption)
+        record = {
+            'date': str(date),
+            'days_left': days_left,
+            'package_size': package_size,
+            'consumed_units': consumed_units,
+            'consumed_percentage': consumed_percentage,
+            'remaining_units': remaining_units,
+            'consumption_in_between': consumption_in_between,
+            'projected_consumption': projected_consumption,
+            'average_consumption': average_consumption
+        }
 
         return record

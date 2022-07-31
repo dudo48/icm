@@ -22,8 +22,9 @@ def run():
         utility.logger.debug("Adding data to databases...")
         storage.add_to_sql_database(record)
         storage.add_to_csv_database(record)
-        storage.set_previous_record(record)
         storage.create_report(record)
+        storage.set_previous_record(record)
+
         utility.logger.debug("Task completed successfully.")
     except BaseException as error:
         utility.logger.debug(f"Task failed: {error}")
