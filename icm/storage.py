@@ -34,7 +34,7 @@ def set_previous_record(record):
 
 def get_previous_record():
     try:
-        with open("../persistent/previous_record", 'r') as file:
+        with open("../persistent/previous_record.json", 'r') as file:
             return json.load(file)
     except FileNotFoundError:
         return None
