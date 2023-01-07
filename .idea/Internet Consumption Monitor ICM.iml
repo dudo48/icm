@@ -3,6 +3,8 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/icm" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/databases" />
+      <excludeFolder url="file://$MODULE_DIR$/persistent" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -40,6 +40,16 @@ class Scraper:
         service_number_element.click()
         utility.type_slowly(service_number_element, credentials.USERNAME)
 
+        # select service type
+        service_type_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
+            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.SERVICE_TYPE))
+        )
+        service_type_element.click()
+        internet_service_type_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
+            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.INTERNET_SERVICE_TYPE))
+        )
+        internet_service_type_element.click()
+
         # type password
         password_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
             expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.PASSWORD))
