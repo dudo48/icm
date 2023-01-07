@@ -12,3 +12,4 @@ END_HOUR = datetime.time(23, 59)
 
 SCHEDULER_CHECK_INTERVAL = 5 * 60  # interval of seconds for the scheduler to check a possible run
 REMAINING_UNITS_ALERT_MARGIN = 0.10     # alert if remaining units / package size is less than this percentage
+REMAINING_DAYS_ALERT_MARGIN = 5     # alert if remaining days is less than x days

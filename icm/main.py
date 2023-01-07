@@ -26,10 +26,13 @@ def run():
         storage.create_report(record)
         storage.set_previous_record(record)
 
-        # remaining units warning
+        # warning message boxes
         remaining_units_margin = constants.REMAINING_UNITS_ALERT_MARGIN * record['package_size']
         previous_remaining_units = record['remaining_units'] + record['consumption_in_between']
-        if record['remaining_units'] < remaining_units_margin < previous_remaining_units:
+        if record['days_left'] < constants.REMAINING_DAYS_ALERT_MARGIN:
+            ctypes.windll.user32.MessageBoxW(0, f'Warning: Only {record["days_left"]} days left. Remember to '
+                                                f'recharge your internet', 'ICM: Internet Consumption Manager', 48)
+        elif record['remaining_units'] < remaining_units_margin < previous_remaining_units:
             ctypes.windll.user32.MessageBoxW(0, f'Warning: Only {record["remaining_units"]} units left. Remember to '
                                                 f'recharge your internet', 'ICM: Internet Consumption Manager', 48)
 
