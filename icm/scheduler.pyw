@@ -1,3 +1,5 @@
+#!F:/Programs/Python/Internet Consumption Monitor ICM/venv/Scripts/pythonw.exe
+
 import datetime
 import json
 import time
