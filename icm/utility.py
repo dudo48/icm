@@ -1,13 +1,15 @@
-import time
 import logging
+import time
+
+import constants
 
 
 # selenium send keys but with a delay
 def type_slowly(element, text):
-    for char in text:
-        time.sleep(0.1)
-        element.send_keys(char)
-        time.sleep(0.1)
+    for c in text:
+        time.sleep(constants.TYPE_SLOWLY_DELAY)
+        element.send_keys(c)
+        time.sleep(constants.TYPE_SLOWLY_DELAY)
 
 
 # convert dict values to string-only list
@@ -19,7 +21,8 @@ def dict_to_str_list(dictionary):
 def configure_logger():
     logger.setLevel(logging.DEBUG)
 
-    logger_formatter = logging.Formatter("[%(asctime)s] %(message)s", "%Y-%m-%d %H:%M:%S")
+    logger_formatter = logging.Formatter(
+        "[%(asctime)s] %(message)s", "%Y-%m-%d %H:%M:%S")
 
     console_handle = logging.StreamHandler()
     console_handle.setLevel(logging.DEBUG)

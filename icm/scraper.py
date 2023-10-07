@@ -1,19 +1,21 @@
 import datetime
 import json
 import time
-import constants
-import storage
-import utility
-import css_selectors
-import urls
-import credentials
+from subprocess import CREATE_NO_WINDOW
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
-from subprocess import CREATE_NO_WINDOW
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.ui import WebDriverWait
+
+import constants
+import credentials
+import css_selectors
+import storage
+import urls
+import utility
 
 
 class Scraper:
@@ -21,78 +23,89 @@ class Scraper:
 
         # initialize browser
         options = Options()
-        service = Service("chromedriver.exe")
+        service = Service("C:\\chromedriver\\chromedriver.exe")
         if not debug_mode:
             options.headless = True
-            options.add_experimental_option("excludeSwitches", ["enable-logging"])
-            service.creationflags = CREATE_NO_WINDOW
+            options.add_experimental_option(
+                "excludeSwitches", ["enable-logging"])
+            # service.creationflags = CREATE_NO_WINDOW
+            options.add_argument("--headless")
 
         self.browser = webdriver.Chrome(options=options, service=service)
 
     def login(self):
-
         self.browser.get(urls.LOGIN)
 
         # type user name/number
         service_number_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
-            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.SERVICE_NUMBER))
+            expected_conditions.visibility_of_element_located(
+                (By.CSS_SELECTOR, css_selectors.SERVICE_NUMBER))
         )
         service_number_element.click()
         utility.type_slowly(service_number_element, credentials.USERNAME)
 
         # select service type
         service_type_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
-            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.SERVICE_TYPE))
+            expected_conditions.visibility_of_element_located(
+                (By.CSS_SELECTOR, css_selectors.SERVICE_TYPE))
         )
         service_type_element.click()
         internet_service_type_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
-            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.INTERNET_SERVICE_TYPE))
+            expected_conditions.visibility_of_element_located(
+                (By.CSS_SELECTOR, css_selectors.INTERNET_SERVICE_TYPE))
         )
         internet_service_type_element.click()
 
         # type password
         password_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
-            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.PASSWORD))
+            expected_conditions.visibility_of_element_located(
+                (By.CSS_SELECTOR, css_selectors.PASSWORD))
         )
         password_element.click()
         utility.type_slowly(password_element, credentials.PASSWORD)
 
         # click log in button
         sign_in_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
-            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.SIGN_IN_BUTTON))
+            expected_conditions.visibility_of_element_located(
+                (By.CSS_SELECTOR, css_selectors.SIGN_IN_BUTTON))
         )
         sign_in_element.click()
+        WebDriverWait(self.browser, constants.TIMEOUT).until(
+            expected_conditions.url_to_be(urls.INDEX)
+        )
 
     def get_days_left(self):
+        utility.logger.debug('Retrieving days left...')
         self.browser.get(urls.OVERVIEW)
 
         days_left_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
-            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.DAYS_LEFT))
+            expected_conditions.visibility_of_element_located(
+                (By.CSS_SELECTOR, css_selectors.DAYS_LEFT))
         )
-        time.sleep(1)
 
         days_left = int(days_left_element.text.split()[3])
         return days_left
 
     def get_consumed_units(self):
+        utility.logger.debug('Retrieving consumed units...')
         self.browser.get(urls.USAGE)
 
         consumed_units_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
-            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.CONSUMED_UNITS))
+            expected_conditions.visibility_of_element_located(
+                (By.CSS_SELECTOR, css_selectors.CONSUMED_UNITS))
         )
-        time.sleep(1)
 
         consumed_units = float(consumed_units_element.text.split()[0])
         return consumed_units
 
     def get_remaining_units(self):
+        utility.logger.debug('Retrieving remaining units...')
         self.browser.get(urls.USAGE)
 
         remaining_units_element = WebDriverWait(self.browser, constants.TIMEOUT).until(
-            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, css_selectors.REMAINING_UNITS))
+            expected_conditions.visibility_of_element_located(
+                (By.CSS_SELECTOR, css_selectors.REMAINING_UNITS))
         )
-        time.sleep(1)
-
         remaining_units = float(remaining_units_element.text.split()[0])
         return remaining_units
 
@@ -102,23 +115,28 @@ class Scraper:
         remaining_units = self.get_remaining_units()
         consumed_units = self.get_consumed_units()
         package_size = remaining_units + consumed_units
-        consumed_percentage = round(float(consumed_units) / float(package_size), 3)
+        consumed_percentage = round(
+            float(consumed_units) / float(package_size), 3)
         projected_consumption = round(remaining_units / days_left, 2)
-        average_consumption = round(consumed_units / (constants.MONTH - days_left + 1), 2)
+        average_consumption = round(
+            consumed_units / (constants.MONTH - days_left + 1), 2)
 
         # calculate consumption in between using previous record data
         previous_record = storage.get_previous_record()
 
         if previous_record:
-            consumption_in_between = round(consumed_units - previous_record['consumed_units'], 2)
+            consumption_in_between = round(
+                consumed_units - previous_record['consumed_units'], 2)
 
             # new monthly package started
-            previous_date = datetime.datetime.strptime(previous_record['date'], '%Y-%m-%d').date()
+            previous_date = datetime.datetime.strptime(
+                previous_record['date'], '%Y-%m-%d').date()
             previous_days_left = previous_record['days_left']
 
             # check if new month started
             if days_left > previous_days_left or abs(date - previous_date).days >= constants.MONTH:
-                consumption_in_between = round(package_size - remaining_units, 2)
+                consumption_in_between = round(
+                    package_size - remaining_units, 2)
         else:
             consumption_in_between = consumed_units
 
