@@ -3,19 +3,19 @@ import json
 import time
 from subprocess import CREATE_NO_WINDOW
 
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.ui import WebDriverWait
-
 import constants
 import credentials
 import css_selectors
 import storage
 import urls
 import utility
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.wait import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 class Scraper:
@@ -23,13 +23,11 @@ class Scraper:
 
         # initialize browser
         options = Options()
-        service = Service("C:\\chromedriver\\chromedriver.exe")
+        service = Service(ChromeDriverManager().install())
         if not debug_mode:
-            options.headless = True
+            options.add_argument("headless")
             options.add_experimental_option(
                 "excludeSwitches", ["enable-logging"])
-            # service.creationflags = CREATE_NO_WINDOW
-            options.add_argument("--headless")
 
         self.browser = webdriver.Chrome(options=options, service=service)
 
