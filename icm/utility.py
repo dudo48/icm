@@ -28,7 +28,7 @@ def configure_logger():
     console_handle.setLevel(logging.DEBUG)
     console_handle.setFormatter(logger_formatter)
 
-    file_handle = logging.FileHandler("../log.txt", 'w')
+    file_handle = logging.FileHandler("../log.txt", 'a')
     file_handle.setLevel(logging.DEBUG)
     file_handle.setFormatter(logger_formatter)
 

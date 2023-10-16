@@ -2,51 +2,42 @@
 
 import datetime
 import json
+import pickle
 import time
 
 import constants
-import main
 import utility
+from pytz import timezone
+
+import icm
 
 
-def get_previous_record_date():
+def load_next_datetime() -> datetime.datetime | None:
     try:
-        with open("../persistent/previous_record_datetime.json", 'r') as file:
-            return json.load(file)
+        with open("../persistent/next_datetime", 'rb') as file:
+            return pickle.load(file)
     except FileNotFoundError:
         return None
 
 
-def set_previous_record_date(data):
-    with open("../persistent/previous_record_datetime.json", 'w') as file:
-        return json.dump(data, file, indent=4)
+def save_next_datetime(next_datetime):
+    with open("../persistent/next_datetime", 'wb') as file:
+        return pickle.dump(next_datetime, file)
 
 
-def run():
-    while True:
-        current_datetime = datetime.datetime.now()
-        previous_date_json = get_previous_record_date()
+def check():
+    current_datetime = datetime.datetime.now(timezone('Africa/Cairo'))
+    next_datetime = load_next_datetime()
 
-        if previous_date_json:
-            previous_datetime = datetime.datetime.fromisoformat(
-                previous_date_json['iso'])
-            next_run_date = current_datetime.date()
-            if next_run_date == previous_datetime.date():
-                next_run_date += datetime.timedelta(days=1)
-
-            # datetime objects for next run times(runs in range of start and end only once)
-            next_run_start = datetime.datetime.combine(
-                next_run_date, constants.START_HOUR)
-            next_run_end = datetime.datetime.combine(
-                next_run_date, constants.END_HOUR)
-
-        if not previous_date_json or next_run_start <= current_datetime <= next_run_end:
-            main.run()
-            set_previous_record_date({'iso': current_datetime.isoformat()})
-        else:
-            utility.logger.debug("Not yet.")
-            time.sleep(constants.SCHEDULER_CHECK_INTERVAL)
+    if not next_datetime or current_datetime >= next_datetime:
+        icm.run()  # type: ignore
+        save_next_datetime(current_datetime + datetime.timedelta(days=1))
+    else:
+        utility.logger.debug(
+            f"Scheduled to run on {next_datetime.strftime(r'%B %d, %Y, %I:%M %p')}.")
+        time.sleep((next_datetime - current_datetime).total_seconds())
 
 
 if __name__ == '__main__':
-    run()
+    while True:
+        check()
