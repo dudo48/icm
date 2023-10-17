@@ -31,10 +31,12 @@ def check():
 
     if not next_datetime or current_datetime >= next_datetime:
         icm.run()  # type: ignore
-        save_next_datetime(current_datetime + datetime.timedelta(days=1))
-    else:
+
+        next_datetime = current_datetime + datetime.timedelta(days=1)
+        save_next_datetime(next_datetime)
         utility.logger.debug(
             f"Scheduled to run on {next_datetime.strftime(r'%B %d, %Y, %I:%M %p')}.")
+    else:
         time.sleep((next_datetime - current_datetime).total_seconds())
 
 
