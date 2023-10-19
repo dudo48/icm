@@ -107,7 +107,7 @@ class Scraper:
         remaining_units = float(remaining_units_element.text.split()[0])
         return remaining_units
 
-    def create_record(self):
+    def create_record(self, previous_record):
         date = datetime.date.today()
         days_left = self.get_days_left()
         remaining_units = self.get_remaining_units()
@@ -117,11 +117,9 @@ class Scraper:
             float(consumed_units) / float(package_size), 3)
         projected_consumption = round(remaining_units / days_left, 2)
         average_consumption = round(
-            consumed_units / (constants.MONTH - days_left + 1), 2)
+            consumed_units / (constants.MONTH_DAYS - days_left + 1), 2)
 
         # calculate consumption in between using previous record data
-        previous_record = storage.get_previous_record()
-
         if previous_record:
             consumption_in_between = round(
                 consumed_units - previous_record['consumed_units'], 2)
@@ -130,7 +128,7 @@ class Scraper:
             previous_date = datetime.datetime.strptime(
                 previous_record['date'], '%Y-%m-%d').date()
             previous_days_left = previous_record['days_left']
-            if days_left > previous_days_left or abs(date - previous_date).days >= constants.MONTH:
+            if days_left > previous_days_left or abs(date - previous_date).days >= constants.MONTH_DAYS:
                 consumption_in_between = round(
                     package_size - remaining_units, 2)
         else:

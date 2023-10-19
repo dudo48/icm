@@ -2,7 +2,8 @@ import logging
 import os
 import time
 
-from icm.constants import PROJECT_ROOT, TYPE_SLOWLY_DELAY
+import paths
+from constants import PROJECT_ROOT, TYPE_SLOWLY_DELAY
 
 
 # selenium send keys but with a delay
@@ -18,10 +19,6 @@ def dict_to_str_list(dictionary):
     return [str(element) for element in dictionary.values()]
 
 
-def get_log_path():
-    return os.path.join(PROJECT_ROOT, '/debug/log.txt')
-
-
 # attaches and configures the handlers for the logger
 def configure_logger():
     logger.setLevel(logging.DEBUG)
@@ -33,7 +30,8 @@ def configure_logger():
     console_handle.setLevel(logging.DEBUG)
     console_handle.setFormatter(logger_formatter)
 
-    file_handle = logging.FileHandler(get_log_path(), 'w')
+    os.makedirs(os.path.dirname(paths.log), exist_ok=True)
+    file_handle = logging.FileHandler(paths.log, 'w')
     file_handle.setLevel(logging.DEBUG)
     file_handle.setFormatter(logger_formatter)
 

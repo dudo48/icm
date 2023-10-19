@@ -2,50 +2,49 @@
 
 import datetime
 import json
+import math
+import os
 import pickle
 import time
 
+import paths
+import storage
 import utility
+from constants import HOUR_SECONDS, PROJECT_ROOT
 from pytz import timezone
 
 import icm
-from icm.constants import CHECK_INTERVAL_FACTOR, MIN_CHECK_INTERVAL
 
 
-def load_next_datetime() -> datetime.datetime | None:
-    try:
-        with open("../persistent/next_datetime", 'rb') as file:
-            return pickle.load(file)
-    except FileNotFoundError:
-        return None
+def run_scheduler():
+    log_scheduled_date = True
 
+    while True:
+        current_datetime = datetime.datetime.now(timezone('Africa/Cairo'))
+        next_datetime = storage.load_next_datetime()
 
-def save_next_datetime(next_datetime):
-    with open("../persistent/next_datetime", 'wb') as file:
-        return pickle.dump(next_datetime, file)
+        if not next_datetime or current_datetime >= next_datetime:
+            icm.run()  # type: ignore
 
+            next_datetime = current_datetime + datetime.timedelta(days=1)
+            storage.save_next_datetime(next_datetime)
+            log_scheduled_date = True
+        else:
+            if log_scheduled_date:
+                utility.logger.debug(
+                    f"Scheduled to run on {next_datetime.strftime(r'%B %d, %Y, %I:%M %p')}.")
+                log_scheduled_date = False
+            else:
+                utility.logger.debug('Not yet.')
 
-def check():
-    current_datetime = datetime.datetime.now(timezone('Africa/Cairo'))
-    next_datetime = load_next_datetime()
+            total_seconds = (next_datetime - current_datetime).total_seconds()
 
-    if not next_datetime or current_datetime >= next_datetime:
-        icm.run()  # type: ignore
-
-        next_datetime = current_datetime + datetime.timedelta(days=1)
-        save_next_datetime(next_datetime)
-        utility.logger.debug(
-            f"Scheduled to run on {next_datetime.strftime(r'%B %d, %Y, %I:%M %p')}.")
-    else:
-        seconds_remaining = (next_datetime - current_datetime).total_seconds()
-        sleep_duration = max(
-            seconds_remaining * CHECK_INTERVAL_FACTOR,
-            MIN_CHECK_INTERVAL
-        )
-        utility.logger.debug('Not yet.')
-        time.sleep(sleep_duration)
+            # sleep for half the duration to counter 'sleep freezing' which happens when the computer sleeps
+            sleep_duration = math.ceil(
+                total_seconds if total_seconds < HOUR_SECONDS else total_seconds / 2
+            )
+            time.sleep(sleep_duration)
 
 
 if __name__ == '__main__':
-    while True:
-        check()
+    run_scheduler()
