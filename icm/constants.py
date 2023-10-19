@@ -13,3 +13,5 @@ TYPE_SLOWLY_DELAY = 0.05
 
 MIN_CHECK_INTERVAL = 15 * 60  # seconds
 CHECK_INTERVAL_FACTOR = 0.1
+
+PROJECT_ROOT = r"F:\Programs\Python\Internet Consumption Monitor ICM"

@@ -53,8 +53,7 @@ def run():
 
         # notify user by opening log
         if warnings:
-            os.startfile(
-                r'F:\Programs\Python\Internet Consumption Monitor ICM\log.txt', 'open')
+            os.startfile(utility.get_log_path(), 'open')
     except BaseException as error:
         utility.logger.debug(f"Task failed: {error}")
     finally:

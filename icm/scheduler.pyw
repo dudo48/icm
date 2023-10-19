@@ -42,6 +42,7 @@ def check():
             seconds_remaining * CHECK_INTERVAL_FACTOR,
             MIN_CHECK_INTERVAL
         )
+        utility.logger.debug('Not yet.')
         time.sleep(sleep_duration)
 
 
