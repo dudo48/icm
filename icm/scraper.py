@@ -126,12 +126,10 @@ class Scraper:
             consumption_in_between = round(
                 consumed_units - previous_record['consumed_units'], 2)
 
-            # new monthly package started
+            # check if new month started
             previous_date = datetime.datetime.strptime(
                 previous_record['date'], '%Y-%m-%d').date()
             previous_days_left = previous_record['days_left']
-
-            # check if new month started
             if days_left > previous_days_left or abs(date - previous_date).days >= constants.MONTH:
                 consumption_in_between = round(
                     package_size - remaining_units, 2)

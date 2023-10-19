@@ -1,11 +1,14 @@
 import ctypes
+import os
 import sys
 import time
 
-import constants
 import storage
 import utility
 from scraper import Scraper
+
+from icm.constants import (REMAINING_DAYS_ALERT_MARGIN,
+                           REMAINING_UNITS_ALERT_MARGIN)
 
 
 def run():
@@ -30,19 +33,28 @@ def run():
         storage.create_report(record)
         storage.set_previous_record(record)
 
-        # warning message boxes
-        remaining_units_margin = constants.REMAINING_UNITS_ALERT_MARGIN * \
+        # logging warnings
+        warnings = []
+        remaining_units_margin = REMAINING_UNITS_ALERT_MARGIN * \
             record['package_size']
-        previous_remaining_units = record['remaining_units'] + \
-            record['consumption_in_between']
-        if record['days_left'] < constants.REMAINING_DAYS_ALERT_MARGIN:
-            ctypes.windll.user32.MessageBoxW(0, f'Only {record["days_left"]} days left. Remember to '
-                                                f'recharge your internet', 'ICM: Internet Consumption Manager', 48)
-        elif record['remaining_units'] < remaining_units_margin < previous_remaining_units:
-            ctypes.windll.user32.MessageBoxW(0, f'Only {record["remaining_units"]} internet units left. Remember to '
-                                                f'recharge your internet', 'ICM: Internet Consumption Manager', 48)
+        previous_record = storage.get_previous_record()
+
+        if record['days_left'] < REMAINING_DAYS_ALERT_MARGIN and (not previous_record or previous_record['days_left'] > REMAINING_DAYS_ALERT_MARGIN):
+            warnings.append(
+                f'WARNING: Only {record["days_left"]} days left. Remember to recharge your internet')
+        if record['remaining_units'] < remaining_units_margin and (not previous_record or previous_record['remaining_units'] > remaining_units_margin):
+            warnings.append(
+                f'WARNING: Only {record["remaining_units"]} internet units left. Remember to recharge your internet')
+
+        for warning in warnings:
+            utility.logger.debug(warning)
 
         utility.logger.debug("Task completed successfully.")
+
+        # notify user by opening log
+        if warnings:
+            os.startfile(
+                r'F:\Programs\Python\Internet Consumption Monitor ICM\log.txt', 'open')
     except BaseException as error:
         utility.logger.debug(f"Task failed: {error}")
     finally:
