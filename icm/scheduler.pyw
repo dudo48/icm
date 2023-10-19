@@ -5,11 +5,11 @@ import json
 import pickle
 import time
 
-import constants
 import utility
 from pytz import timezone
 
 import icm
+from icm.constants import CHECK_INTERVAL_FACTOR, MIN_CHECK_INTERVAL
 
 
 def load_next_datetime() -> datetime.datetime | None:
@@ -37,7 +37,12 @@ def check():
         utility.logger.debug(
             f"Scheduled to run on {next_datetime.strftime(r'%B %d, %Y, %I:%M %p')}.")
     else:
-        time.sleep((next_datetime - current_datetime).total_seconds())
+        seconds_remaining = (next_datetime - current_datetime).total_seconds()
+        sleep_duration = max(
+            seconds_remaining * CHECK_INTERVAL_FACTOR,
+            MIN_CHECK_INTERVAL
+        )
+        time.sleep(sleep_duration)
 
 
 if __name__ == '__main__':

@@ -10,3 +10,6 @@ TABLE_HEADERS = ["Date", "Days Left", "Package Size", "Consumed Units", "Consume
 REMAINING_UNITS_ALERT_MARGIN = 0.10
 REMAINING_DAYS_ALERT_MARGIN = 5     # alert if remaining days is less than x days
 TYPE_SLOWLY_DELAY = 0.05
+
+MIN_CHECK_INTERVAL = 15 * 60  # seconds
+CHECK_INTERVAL_FACTOR = 0.1
