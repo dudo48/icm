@@ -5,8 +5,8 @@ import time
 
 import paths
 import storage
-import utility
 from constants import REMAINING_DAYS_ALERT_MARGIN, REMAINING_UNITS_ALERT_MARGIN
+from logger import logger
 from scraper import Scraper
 
 
@@ -14,24 +14,30 @@ def run():
     args = sys.argv[1:]
     debug_mode = '--debug' in args
 
-    utility.logger.debug("Running ICM...")
+    logger.debug("Running ICM...")
     scraper = None
     try:
-        utility.logger.debug("Opening browser...")
+        logger.debug("Opening browser...")
         scraper = Scraper(debug_mode=debug_mode)
 
-        utility.logger.debug("Logging in...")
+        logger.debug("Logging in...")
         scraper.login()
 
-        utility.logger.debug("Scraping data...")
+        logger.debug("Scraping data...")
         previous_record = storage.get_previous_record()
         record = scraper.create_record(previous_record)
 
-        utility.logger.debug("Adding data to databases...")
-        storage.add_to_sql_database(record)
-        storage.add_to_csv_database(record)
-        storage.create_report(record)
-        storage.set_previous_record(record)
+        logger.debug("Adding data to databases...")
+
+        # convert all data to string for consistent manifestation
+        data_list = [str(e) for e in record.values()]
+        storage.create_report(data_list)
+
+        # do not affect databases when debugging
+        if not debug_mode:
+            storage.add_to_sql_database(data_list)
+            storage.add_to_csv_database(data_list)
+            storage.set_previous_record(record)
 
         # logging warnings
         warnings = []
@@ -44,14 +50,14 @@ def run():
                 f'WARNING: Only {record["remaining_units"]} internet units left. Remember to recharge your internet')
 
         for warning in warnings:
-            utility.logger.debug(warning)
-        utility.logger.debug("Task completed successfully.")
+            logger.debug(warning)
+        logger.debug("Task completed successfully.")
 
         # notify user by opening log
         if warnings:
             os.startfile(paths.log, 'open')
     except BaseException as error:
-        utility.logger.debug(f"Task failed: {error}")
+        logger.debug(f"Task failed: {error}")
         os.startfile(paths.log, 'open')
     finally:
         if scraper:
