@@ -1,15 +1,15 @@
 import datetime
 import logging
 import os
-import time
+
+from pytz import timezone
 
 import paths
-from constants import PROJECT_ROOT, TIMEZONE
-from pytz import timezone
+from constants import TIMEZONE
 
 
 # to set the logger to a custom timezone
-def converter(*args):
+def converter():
     return datetime.datetime.now(timezone(TIMEZONE)).timetuple()
 
 

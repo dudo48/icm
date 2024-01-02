@@ -1,20 +1,16 @@
 #!F:/Programs/Python/Internet Consumption Monitor ICM/venv/Scripts/pythonw.exe
 
 import datetime
-import json
 import math
-import os
-import pickle
 import time
 
-import paths
-import storage
-from constants import (MAX_SLEEP_DURATION, PROJECT_ROOT, SLEEP_DURATION_LIMIT,
-                       TIMEZONE)
-from logger import logger
 from pytz import timezone
 
 import icm
+import storage
+from constants import (MAX_SLEEP_DURATION, SLEEP_DURATION_LIMIT,
+                       TIMEZONE, RUN_INTERVAL_DAYS)
+from logger import logger
 
 
 def compute_sleep_duration(current_datetime, next_datetime):
@@ -37,7 +33,7 @@ def run_scheduler():
         if not next_datetime or current_datetime >= next_datetime:
             icm.run()  # type: ignore
 
-            next_datetime = current_datetime + datetime.timedelta(days=1)
+            next_datetime = current_datetime + datetime.timedelta(days=RUN_INTERVAL_DAYS)
             storage.save_next_datetime(next_datetime)
             log_scheduled_date = True
         else:
@@ -50,7 +46,7 @@ def run_scheduler():
 
             check_timedelta = datetime.timedelta(seconds=sleep_duration)
             check_datetime = current_datetime + \
-                datetime.timedelta(seconds=sleep_duration)
+                             datetime.timedelta(seconds=sleep_duration)
             logger.debug(
                 f"Checking again in {check_timedelta} ({check_datetime.strftime(r'%B %d, %Y %I:%M:%S %p')}).")
             time.sleep(sleep_duration)

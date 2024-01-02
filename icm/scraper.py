@@ -1,14 +1,6 @@
 import datetime
-import json
 import time
-from subprocess import CREATE_NO_WINDOW
 
-import credentials
-import css_selectors
-import storage
-import urls
-from constants import PACKAGE_LIFESPAN, TIMEOUT
-from logger import logger
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -16,6 +8,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
+
+import credentials
+import css_selectors
+import urls
+from constants import PACKAGE_LIFESPAN, TIMEOUT
+from logger import logger
 
 
 class Scraper:

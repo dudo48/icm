@@ -1,5 +1,3 @@
-import datetime
-
 TIMEZONE = "Africa/Cairo"
 PROJECT_ROOT = r"F:\Programs\Python\Internet Consumption Monitor ICM"
 CSV_DELIMITER = ','
@@ -17,3 +15,7 @@ REMAINING_DAYS_ALERT_MARGIN = 5
 # if time until scraping is less than this limit then sleep the remaining duration
 SLEEP_DURATION_LIMIT = 10 * 60  # seconds
 MAX_SLEEP_DURATION = 60 * 60  # seconds
+
+# run ICM every x days
+# less than one so the time is not the same every day (personal preference)
+RUN_INTERVAL_DAYS = 0.9

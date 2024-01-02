@@ -5,7 +5,7 @@ import pickle
 import sqlite3
 
 import paths
-from constants import CSV_DELIMITER, PROJECT_ROOT, TABLE_HEADERS
+from constants import CSV_DELIMITER, TABLE_HEADERS
 
 
 def load_next_datetime() -> datetime.datetime | None:
