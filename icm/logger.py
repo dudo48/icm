@@ -9,7 +9,7 @@ from constants import TIMEZONE
 
 
 # to set the logger to a custom timezone
-def converter():
+def converter(*args):
     return datetime.datetime.now(timezone(TIMEZONE)).timetuple()
 
 
