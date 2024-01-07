@@ -46,7 +46,7 @@ def run_scheduler():
 
             check_timedelta = datetime.timedelta(seconds=sleep_duration)
             check_datetime = current_datetime + \
-                             datetime.timedelta(seconds=sleep_duration)
+                datetime.timedelta(seconds=sleep_duration)
             logger.debug(
                 f"Checking again in {check_timedelta} ({check_datetime.strftime(r'%B %d, %Y %I:%M:%S %p')}).")
             time.sleep(sleep_duration)

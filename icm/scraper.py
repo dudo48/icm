@@ -1,4 +1,5 @@
 import datetime
+import os
 import time
 
 from selenium import webdriver
@@ -20,17 +21,17 @@ class Scraper:
     def __init__(self, debug_mode=False):
 
         # initialize browser
-        options = Options()
         service = Service(ChromeDriverManager().install())
+        options = Options()
         if not debug_mode:
             options.add_argument("headless")
-            options.add_experimental_option(
-                "excludeSwitches", ["enable-logging"])
+            os.environ['WDM_LOG'] = '0'  # no logging console for webdriver
 
-        self.browser = webdriver.Chrome(options=options, service=service)
+        self.browser = webdriver.Chrome(service=service, options=options)
 
     # selenium send keys but with a delay
-    def type_slowly(self, element, text):
+    @staticmethod
+    def type_slowly(element, text):
         for c in text:
             element.send_keys(c)
             time.sleep(0.1)
@@ -44,7 +45,7 @@ class Scraper:
                 (By.CSS_SELECTOR, css_selectors.SERVICE_NUMBER))
         )
         service_number_element.click()
-        self.type_slowly(service_number_element, credentials.USERNAME)
+        Scraper.type_slowly(service_number_element, credentials.USERNAME)
 
         # select service type
         service_type_element = WebDriverWait(self.browser, TIMEOUT).until(
@@ -64,7 +65,7 @@ class Scraper:
                 (By.CSS_SELECTOR, css_selectors.PASSWORD))
         )
         password_element.click()
-        self.type_slowly(password_element, credentials.PASSWORD)
+        Scraper.type_slowly(password_element, credentials.PASSWORD)
 
         # click log in button
         sign_in_element = WebDriverWait(self.browser, TIMEOUT).until(
