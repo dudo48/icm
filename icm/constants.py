@@ -17,5 +17,4 @@ SLEEP_DURATION_LIMIT = 10 * 60  # seconds
 MAX_SLEEP_DURATION = 60 * 60  # seconds
 
 # run ICM every x days
-# less than one so the time is not the same every day (personal preference)
-RUN_INTERVAL_DAYS = 0.9
+RUN_INTERVAL_DAYS = 1
