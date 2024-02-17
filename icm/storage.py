@@ -34,6 +34,19 @@ def add_to_sql_database(record):
     conn = sqlite3.connect(paths.sql_database)
     cursor = conn.cursor()
     cursor.execute(
+        '''CREATE TABLE IF NOT EXISTS InternetConsumption(
+            "Date" DATE,
+            "Days Left" INT,
+            "Package Size" REAL,
+            "Consumed Units" REAL,
+            "Consumed Percentage" REAL,
+            "Remaining Units" REAL,
+            "Consumption In-Between" REAL,
+            "Projected Daily Consumption" REAL,
+            "Average Consumption" REAL
+        );'''
+    )
+    cursor.execute(
         "INSERT INTO InternetConsumption VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", tuple(record))
     conn.commit()
     conn.close()

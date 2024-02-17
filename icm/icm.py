@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 
 import paths
@@ -7,6 +8,9 @@ from constants import REMAINING_DAYS_ALERT_MARGIN, REMAINING_UNITS_ALERT_MARGIN
 from logger import logger
 from scraper import Scraper
 
+
+def send_message(message):
+    return subprocess.Popen(['notify-send', 'Internet Consumption Manager', message])
 
 def run():
     args = sys.argv[1:]
@@ -49,14 +53,13 @@ def run():
 
         for warning in warnings:
             logger.debug(warning)
+            send_message(warning)
         logger.debug("Task completed successfully.")
 
-        # notify user by opening log
-        if warnings:
-            os.startfile(paths.log, 'open')
     except BaseException as error:
-        logger.debug(f"Task failed: {error}")
-        os.startfile(paths.log, 'open')
+        message = f'ICM run failed: {error}'
+        logger.debug(message)
+        send_message(message)
     finally:
         if scraper:
             scraper.browser.quit()

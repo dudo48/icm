@@ -1,5 +1,8 @@
+import os
+
+
 TIMEZONE = "Africa/Cairo"
-PROJECT_ROOT = r"F:\Programs\Python\Internet Consumption Monitor ICM"
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 CSV_DELIMITER = ','
 PACKAGE_LIFESPAN = 30  # days
 TIMEOUT = 120  # seconds to wait for page to load the required element

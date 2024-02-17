@@ -16,7 +16,7 @@ from logger import logger
 def compute_sleep_duration(current_datetime, next_datetime):
     total_seconds = (next_datetime - current_datetime).total_seconds()
 
-    # sleep for half the duration to counter 'sleep freezing' which happens when the computer sleeps
+    # sleep for half the duration to counter 'sleep freezing' which happens when the computer sleeps/suspends
     sleep_duration = math.ceil(
         total_seconds if total_seconds < SLEEP_DURATION_LIMIT else total_seconds / 2
     )
