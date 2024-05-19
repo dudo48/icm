@@ -1,4 +1,4 @@
-LOGIN = "https://my.te.eg/user/login"
-OVERVIEW = "https://my.te.eg/offering/overview"
-USAGE = "https://my.te.eg/offering/usage"
-INDEX = "https://my.te.eg/"
+LOGIN = "https://my.te.eg/echannel/#/login"
+OVERVIEW = "https://my.te.eg/echannel/#/overview"
+USAGE = "https://my.te.eg/echannel/#/usage"
+INDEX = "https://my.te.eg/echannel/#/accountoverview"

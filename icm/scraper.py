@@ -109,6 +109,7 @@ class Scraper:
             expected_conditions.visibility_of_element_located(
                 (By.CSS_SELECTOR, css_selectors.REMAINING_UNITS))
         )
+
         remaining_units = float(remaining_units_element.text.split()[0])
         return remaining_units
 
