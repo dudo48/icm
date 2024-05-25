@@ -13,7 +13,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import credentials
 import css_selectors
 import urls
-from constants import PACKAGE_LIFESPAN, TIMEOUT
+from constants import PACKAGE_LIFESPAN, TIMEOUT, WAITING_TIME
 from logger import logger
 
 
@@ -80,36 +80,27 @@ class Scraper:
     def get_days_left(self):
         logger.debug('Retrieving days left...')
         self.browser.get(urls.OVERVIEW)
+        time.sleep(WAITING_TIME)
 
-        days_left_element = WebDriverWait(self.browser, TIMEOUT).until(
-            expected_conditions.visibility_of_element_located(
-                (By.CSS_SELECTOR, css_selectors.DAYS_LEFT))
-        )
-
+        days_left_element = self.browser.find_element(By.CSS_SELECTOR, css_selectors.DAYS_LEFT)
         days_left = int(days_left_element.text.split()[3])
         return days_left
 
     def get_consumed_units(self):
         logger.debug('Retrieving consumed units...')
         self.browser.get(urls.USAGE)
+        time.sleep(WAITING_TIME)
 
-        consumed_units_element = WebDriverWait(self.browser, TIMEOUT).until(
-            expected_conditions.visibility_of_element_located(
-                (By.CSS_SELECTOR, css_selectors.CONSUMED_UNITS))
-        )
-
+        consumed_units_element = self.browser.find_element(By.CSS_SELECTOR, css_selectors.CONSUMED_UNITS)
         consumed_units = float(consumed_units_element.text.split()[0])
         return consumed_units
 
     def get_remaining_units(self):
         logger.debug('Retrieving remaining units...')
         self.browser.get(urls.USAGE)
+        time.sleep(WAITING_TIME)
 
-        remaining_units_element = WebDriverWait(self.browser, TIMEOUT).until(
-            expected_conditions.visibility_of_element_located(
-                (By.CSS_SELECTOR, css_selectors.REMAINING_UNITS))
-        )
-
+        remaining_units_element = self.browser.find_element(By.CSS_SELECTOR, css_selectors.REMAINING_UNITS)
         remaining_units = float(remaining_units_element.text.split()[0])
         return remaining_units
 
