@@ -42,7 +42,8 @@ class Scraper:
         # type user name/number
         service_number_element = WebDriverWait(self.browser, TIMEOUT).until(
             expected_conditions.visibility_of_element_located(
-                (By.CSS_SELECTOR, css_selectors.SERVICE_NUMBER))
+                (By.CSS_SELECTOR, css_selectors.SERVICE_NUMBER)
+            )
         )
         service_number_element.click()
         Scraper.type_slowly(service_number_element, credentials.USERNAME)
@@ -50,19 +51,22 @@ class Scraper:
         # select service type
         service_type_element = WebDriverWait(self.browser, TIMEOUT).until(
             expected_conditions.visibility_of_element_located(
-                (By.CSS_SELECTOR, css_selectors.SERVICE_TYPE))
+                (By.CSS_SELECTOR, css_selectors.SERVICE_TYPE)
+            )
         )
         service_type_element.click()
         internet_service_type_element = WebDriverWait(self.browser, TIMEOUT).until(
             expected_conditions.visibility_of_element_located(
-                (By.CSS_SELECTOR, css_selectors.INTERNET_SERVICE_TYPE))
+                (By.CSS_SELECTOR, css_selectors.INTERNET_SERVICE_TYPE)
+            )
         )
         internet_service_type_element.click()
 
         # type password
         password_element = WebDriverWait(self.browser, TIMEOUT).until(
             expected_conditions.visibility_of_element_located(
-                (By.CSS_SELECTOR, css_selectors.PASSWORD))
+                (By.CSS_SELECTOR, css_selectors.PASSWORD)
+            )
         )
         password_element.click()
         Scraper.type_slowly(password_element, credentials.PASSWORD)
@@ -70,7 +74,8 @@ class Scraper:
         # click log in button
         sign_in_element = WebDriverWait(self.browser, TIMEOUT).until(
             expected_conditions.visibility_of_element_located(
-                (By.CSS_SELECTOR, css_selectors.SIGN_IN_BUTTON))
+                (By.CSS_SELECTOR, css_selectors.SIGN_IN_BUTTON)
+            )
         )
         sign_in_element.click()
         WebDriverWait(self.browser, TIMEOUT).until(
@@ -82,7 +87,9 @@ class Scraper:
         self.browser.get(urls.OVERVIEW)
         time.sleep(WAITING_TIME)
 
-        days_left_element = self.browser.find_element(By.CSS_SELECTOR, css_selectors.DAYS_LEFT)
+        days_left_element = self.browser.find_element(
+            By.CSS_SELECTOR, css_selectors.DAYS_LEFT
+        )
         days_left = int(days_left_element.text.split()[3])
         return days_left
 
@@ -91,7 +98,9 @@ class Scraper:
         self.browser.get(urls.USAGE)
         time.sleep(WAITING_TIME)
 
-        consumed_units_element = self.browser.find_element(By.CSS_SELECTOR, css_selectors.CONSUMED_UNITS)
+        consumed_units_element = self.browser.find_element(
+            By.CSS_SELECTOR, css_selectors.CONSUMED_UNITS
+        )
         consumed_units = float(consumed_units_element.text.split()[0])
         return consumed_units
 
@@ -100,7 +109,9 @@ class Scraper:
         self.browser.get(urls.USAGE)
         time.sleep(WAITING_TIME)
 
-        remaining_units_element = self.browser.find_element(By.CSS_SELECTOR, css_selectors.REMAINING_UNITS)
+        remaining_units_element = self.browser.find_element(
+            By.CSS_SELECTOR, css_selectors.REMAINING_UNITS
+        )
         remaining_units = float(remaining_units_element.text.split()[0])
         return remaining_units
 
@@ -110,24 +121,28 @@ class Scraper:
         remaining_units = self.get_remaining_units()
         consumed_units = self.get_consumed_units()
         package_size = remaining_units + consumed_units
-        consumed_percentage = round(
-            float(consumed_units) / float(package_size), 3)
+        consumed_percentage = round(float(consumed_units) / float(package_size), 3)
         projected_consumption = round(remaining_units / days_left, 2)
         average_consumption = round(
-            consumed_units / (PACKAGE_LIFESPAN - days_left + 1), 2)
+            consumed_units / (PACKAGE_LIFESPAN - days_left + 1), 2
+        )
 
         # calculate consumption in between using previous record data
         if previous_record:
             consumption_in_between = round(
-                consumed_units - previous_record['consumed_units'], 2)
+                consumed_units - previous_record['consumed_units'], 2
+            )
 
             # check if new month started
             previous_date = datetime.datetime.strptime(
-                previous_record['date'], '%Y-%m-%d').date()
+                previous_record['date'], '%Y-%m-%d'
+            ).date()
             previous_days_left = previous_record['days_left']
-            if days_left > previous_days_left or abs(date - previous_date).days >= PACKAGE_LIFESPAN:
-                consumption_in_between = round(
-                    package_size - remaining_units, 2)
+            if (
+                days_left > previous_days_left
+                or abs(date - previous_date).days >= PACKAGE_LIFESPAN
+            ):
+                consumption_in_between = round(package_size - remaining_units, 2)
         else:
             consumption_in_between = consumed_units
 
@@ -140,7 +155,7 @@ class Scraper:
             'remaining_units': remaining_units,
             'consumption_in_between': consumption_in_between,
             'projected_consumption': projected_consumption,
-            'average_consumption': average_consumption
+            'average_consumption': average_consumption,
         }
 
         return record
