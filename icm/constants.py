@@ -1,4 +1,3 @@
-TIMEZONE = "Africa/Cairo"
 PACKAGE_LIFESPAN = 30  # days
 TIMEOUT = 120  # max seconds to wait for page to load the required element
 WAITING_TIME = 3  # seconds to wait before reading data present in an element
