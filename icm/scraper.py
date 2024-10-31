@@ -16,8 +16,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from sqlalchemy import select
 from webdriver_manager.chrome import ChromeDriverManager
 
-from icm import credentials, css_selector, url
-from icm.constants import TIMEOUT, WAITING_TIME
+from icm import css_selector, url
+from icm.config import config
 from icm.database import Session
 from icm.logger import logger
 from icm.record import Record
@@ -31,6 +31,7 @@ def type_slowly(element: WebElement, text: str):
 
 @contextlib.contextmanager
 def login(headless: bool = True):
+    """Context manager that yields an authenticated scraper."""
     options = Options()
     if headless:
         options.add_argument("headless")
@@ -57,9 +58,13 @@ class Scraper:
         service = Service(ChromeDriverManager().install())
         return cls(webdriver.Chrome(service=service, options=options))
 
+    @staticmethod
+    def wait():
+        return time.sleep(config["scraper"]["waiting_time"])
+
     def _get_renewal_date(self):
         self.browser.get(url.OVERVIEW)
-        time.sleep(WAITING_TIME)
+        self.wait()
 
         renewal_date_element = self.browser.find_element(
             By.CSS_SELECTOR, css_selector.RENEWAL_DATE
@@ -69,7 +74,7 @@ class Scraper:
 
     def _get_consumed_units(self):
         self.browser.get(url.USAGE)
-        time.sleep(WAITING_TIME)
+        self.wait()
 
         consumed_units_element = self.browser.find_element(
             By.CSS_SELECTOR, css_selector.CONSUMED_UNITS
@@ -79,7 +84,7 @@ class Scraper:
 
     def _get_remaining_units(self):
         self.browser.get(url.USAGE)
-        time.sleep(WAITING_TIME)
+        self.wait()
 
         remaining_units_element = self.browser.find_element(
             By.CSS_SELECTOR, css_selector.REMAINING_UNITS
@@ -89,24 +94,25 @@ class Scraper:
 
     def login(self):
         self.browser.get(url.LOGIN)
+        timeout: int = config["scraper"]["timeout"]
 
-        # type user name/number
-        service_number_element = WebDriverWait(self.browser, TIMEOUT).until(
+        # type service number
+        service_number_element = WebDriverWait(self.browser, timeout).until(
             expected_conditions.visibility_of_element_located(
                 (By.CSS_SELECTOR, css_selector.SERVICE_NUMBER)
             )
         )
         service_number_element.click()
-        type_slowly(service_number_element, credentials.USERNAME)
+        type_slowly(service_number_element, config["credentials"]["number"])
 
         # select service type
-        service_type_element = WebDriverWait(self.browser, TIMEOUT).until(
+        service_type_element = WebDriverWait(self.browser, timeout).until(
             expected_conditions.visibility_of_element_located(
                 (By.CSS_SELECTOR, css_selector.SERVICE_TYPE)
             )
         )
         service_type_element.click()
-        internet_service_type_element = WebDriverWait(self.browser, TIMEOUT).until(
+        internet_service_type_element = WebDriverWait(self.browser, timeout).until(
             expected_conditions.visibility_of_element_located(
                 (By.CSS_SELECTOR, css_selector.INTERNET_SERVICE_TYPE)
             )
@@ -114,22 +120,22 @@ class Scraper:
         internet_service_type_element.click()
 
         # type password
-        password_element = WebDriverWait(self.browser, TIMEOUT).until(
+        password_element = WebDriverWait(self.browser, timeout).until(
             expected_conditions.visibility_of_element_located(
                 (By.CSS_SELECTOR, css_selector.PASSWORD)
             )
         )
         password_element.click()
-        type_slowly(password_element, credentials.PASSWORD)
+        type_slowly(password_element, config["credentials"]["password"])
 
         # click log in button
-        sign_in_element = WebDriverWait(self.browser, TIMEOUT).until(
+        sign_in_element = WebDriverWait(self.browser, timeout).until(
             expected_conditions.visibility_of_element_located(
                 (By.CSS_SELECTOR, css_selector.SIGN_IN_BUTTON)
             )
         )
         sign_in_element.click()
-        WebDriverWait(self.browser, TIMEOUT).until(
+        WebDriverWait(self.browser, timeout).until(
             expected_conditions.url_to_be(url.INDEX)
         )
 

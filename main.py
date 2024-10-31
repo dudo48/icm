@@ -4,7 +4,7 @@ import traceback
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from sqlalchemy import select
 
-from icm.constants import REMAINING_DAYS_ALERT_MARGIN, REMAINING_UNITS_ALERT_MARGIN
+from icm.config import config
 from icm.database import Session
 from icm.logger import logger
 from icm.path import REPORT
@@ -18,13 +18,13 @@ def send_message(message: str):
 
 def check_warnings(record: Record):
     warnings: list[str] = []
-    if record.days_left < REMAINING_DAYS_ALERT_MARGIN:
+    if record.days_left < config["warning"]["remaining_days"]:
         warnings.append(
             f"Only {record.days_left} days left. Remember to recharge your internet"
         )
-    if record.remaining_units < REMAINING_UNITS_ALERT_MARGIN:
+    if record.remaining_units < config["warning"]["remaining_units"]:
         warnings.append(
-            f"WARNING: Only {record.remaining_units} internet units left. Remember to recharge your internet"
+            f"Only {record.remaining_units} internet units left. Remember to recharge your internet"
         )
 
     for warning in warnings:
@@ -40,9 +40,9 @@ def create_report():
             file.write("\n\n".join([str(record) for record in latest_records]))
 
 
-def run_icm():
+def run_icm(headless: bool = True):
     try:
-        with login() as scraper, Session() as session:
+        with login(headless=headless) as scraper, Session() as session:
             record = scraper.create_record()
             logger.debug("Adding record to database...")
             session.add(record)

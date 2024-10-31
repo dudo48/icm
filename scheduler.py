@@ -4,8 +4,8 @@ import sched
 import time
 from typing import cast
 
-from icm.constants import RUN_FREQUENCY_DAYS
 from icm.logger import datetime_format, logger
+from icm.config import config
 from icm.path import NEXT_RUN
 from main import run_icm
 
@@ -19,8 +19,8 @@ def get_next_run() -> datetime.datetime:
 
 def set_next_run(previous_run: datetime.datetime):
     with open(NEXT_RUN, "wb") as file:
-        previous_run = previous_run.replace(microsecond=0)
-        pickle.dump(previous_run + datetime.timedelta(hours=RUN_FREQUENCY_DAYS, file)
+        delta = datetime.timedelta(hours=config["scheduler"]["run_every_hours"])
+        pickle.dump(previous_run.replace(microsecond=0) + delta, file)
 
 
 def run_and_set_next():

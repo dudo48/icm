@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from icm.constants import PACKAGE_LIFESPAN
+from icm.config import config
 from icm.logger import datetime_format
 
 
@@ -63,7 +63,7 @@ class Record(Base):
 
     @property
     def average_consumption(self) -> float:
-        return self.consumed_units / (PACKAGE_LIFESPAN - self.days_left + 1)
+        return self.consumed_units / (config["subscription"]["lifespan"] - self.days_left + 1)
 
     @property
     def projected_consumption(self) -> float:

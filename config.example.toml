@@ -1,0 +1,17 @@
+[credentials]
+number = ""
+password = ""
+
+[scheduler]
+run_every_hours = 24
+
+[scraper]
+timeout = 60     # max seconds to wait for page to load the required element
+waiting_time = 3 # seconds to wait before reading data present in an element
+
+[subscription]
+lifespan = 30 # days
+
+[warning]
+remaining_days = 5   # warn if remaining days is less than this
+remaining_units = 15 # warn if remaining units is less than this

@@ -13,3 +13,6 @@ NEXT_RUN = DATABASES.joinpath("next_run")
 
 LOG = LOG_FOLDER.joinpath("log.txt")
 REPORT = LOG_FOLDER.joinpath("report.txt")
+
+CONFIG = PROJECT_ROOT.joinpath("config.toml")
+CONFIG_EXAMPLE = PROJECT_ROOT.joinpath("config.example.toml")
