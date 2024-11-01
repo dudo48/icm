@@ -3,6 +3,7 @@ number = ""
 password = ""
 
 [scheduler]
+check_every_hours = 1
 run_every_hours = 24
 
 [subscription]
