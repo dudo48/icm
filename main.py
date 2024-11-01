@@ -1,7 +1,5 @@
 import subprocess
-import traceback
 
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from sqlalchemy import select
 
 from icm.config import config
@@ -44,9 +42,9 @@ def run_icm(headless: bool = True):
             report_file.write("\n\n".join([str(record) for record in latest_records]))
             check_warnings(new_record)
             return new_record
-    except (TimeoutException, NoSuchElementException) as e:
-        logger.error(f"Element not found, {e}")
-        logger.error(traceback.format_exc())
+    except Exception as e:
+        logger.exception(e)
+        send_message(str(e))
         raise
 
 
