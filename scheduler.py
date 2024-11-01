@@ -23,18 +23,12 @@ def set_next_run(previous_run: datetime.datetime):
         pickle.dump(previous_run.replace(microsecond=0) + delta, file)
 
 
-def run_and_set_next():
-    now = datetime.datetime.now()
-    run_icm()
-    set_next_run(now)
-
-
 def run_scheduler():
     scheduler = sched.scheduler(time.time, time.sleep)
     while True:
         next_run = get_next_run()
         logger.debug(f"Scheduled to run on {next_run.strftime(datetime_format())}.")
-        scheduler.enterabs(next_run.timestamp(), 1, run_and_set_next)
+        scheduler.enterabs(next_run.timestamp(), 1, lambda: set_next_run(run_icm().date))
         scheduler.run()
 
 

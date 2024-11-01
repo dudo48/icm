@@ -32,23 +32,18 @@ def check_warnings(record: Record):
         send_message(warning)
 
 
-def create_report():
-    logger.debug("Creating report...")
-    with Session() as session:
-        latest_records = session.scalars(select(Record).order_by(Record.date.desc()).limit(5))
-        with open(REPORT, "w") as file:
-            file.write("\n\n".join([str(record) for record in latest_records]))
-
-
 def run_icm(headless: bool = True):
     try:
-        with login(headless=headless) as scraper, Session() as session:
-            record = scraper.create_record()
+        with login(headless=headless) as scraper, Session() as session, open(REPORT, "w") as report_file:
+            new_record = scraper.create_record()
             logger.debug("Adding record to database...")
-            session.add(record)
+            session.add(new_record)
             session.commit()
-            check_warnings(record)
-        create_report()
+            logger.debug("Creating report...")
+            latest_records = session.scalars(select(Record).order_by(Record.date.desc()).limit(5))
+            report_file.write("\n\n".join([str(record) for record in latest_records]))
+            check_warnings(new_record)
+            return new_record
     except (TimeoutException, NoSuchElementException) as e:
         logger.error(f"Element not found, {e}")
         logger.error(traceback.format_exc())
