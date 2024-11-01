@@ -39,7 +39,7 @@ class Record(Base):
         values = [
             self.date.strftime(datetime_format()),
             self.renewal_date.strftime(datetime_format()),
-            str(self.days_left),
+            f"{self.days_left:.1f}",
             f"{self.remaining_units:.2f}",
             f"{self.consumed_units:.2f}",
             f"{self.consumption_since:.2f}",
@@ -54,8 +54,8 @@ class Record(Base):
         )
 
     @property
-    def days_left(self) -> int:
-        return (self.renewal_date - self.date).days
+    def days_left(self) -> float:
+        return (self.renewal_date - self.date).total_seconds() / 86400
 
     @property
     def package_size(self) -> float:
@@ -63,7 +63,7 @@ class Record(Base):
 
     @property
     def average_consumption(self) -> float:
-        return self.consumed_units / (config["subscription"]["lifespan"] - self.days_left + 1)
+        return self.consumed_units / (config["subscription"]["lifespan"] - self.days_left)
 
     @property
     def projected_consumption(self) -> float:

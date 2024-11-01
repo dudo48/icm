@@ -18,7 +18,7 @@ def check_warnings(record: Record):
     warnings: list[str] = []
     if record.days_left < config["warning"]["remaining_days"]:
         warnings.append(
-            f"Only {record.days_left} days left. Remember to recharge your internet"
+            f"Only {record.days_left:.1f} days left. Remember to recharge your internet"
         )
     if record.remaining_units < config["warning"]["remaining_units"]:
         warnings.append(
