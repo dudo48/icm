@@ -1,33 +1,27 @@
-import subprocess
-
 from sqlalchemy import select
 
 from icm.config import config
 from icm.database import Session
-from icm.logger import logger
+from icm.logger import logger, notify
 from icm.path import REPORT
 from icm.record import Record
 from icm.scraper import login
-
-
-def send_message(message: str):
-    return subprocess.Popen(["notify-send", "Internet Consumption Manager", message])
 
 
 def check_warnings(record: Record):
     warnings: list[str] = []
     if record.days_left < config["warning"]["remaining_days"]:
         warnings.append(
-            f"Only {record.days_left:.1f} days left. Remember to recharge your internet"
+            f"Only {record.days_left:.1f} days left. Remember to recharge your internet."
         )
     if record.remaining_units < config["warning"]["remaining_units"]:
         warnings.append(
-            f"Only {record.remaining_units} internet units left. Remember to recharge your internet"
+            f"Only {record.remaining_units} internet units left. Remember to recharge your internet."
         )
 
     for warning in warnings:
         logger.debug(warning)
-        send_message(warning)
+        notify(warning)
 
 
 def run_icm(headless: bool = True):
@@ -44,7 +38,6 @@ def run_icm(headless: bool = True):
             return new_record
     except Exception as e:
         logger.exception(e)
-        send_message(str(e))
         raise
 
 

@@ -1,10 +1,15 @@
 import logging
+import subprocess
 
 from icm import path
 
 
 def datetime_format() -> str:
     return "%Y-%m-%d %I:%M:%S %p"
+
+
+def notify(message: str):
+    return subprocess.Popen(["notify-send", "Internet Consumption Manager", message])
 
 
 # attaches and configures the handlers for the logger

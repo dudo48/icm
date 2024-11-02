@@ -3,8 +3,10 @@ number = ""
 password = ""
 
 [scheduler]
-check_every_hours = 1
 run_every_hours = 24
+check_every_hours = 1
+retries = 2
+retry_every_minutes = 5
 
 [subscription]
 lifespan = 30 # days

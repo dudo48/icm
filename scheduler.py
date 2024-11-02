@@ -6,7 +6,7 @@ from collections.abc import Callable
 from typing import TypeVar, cast
 
 from icm.config import config
-from icm.logger import datetime_format, logger
+from icm.logger import datetime_format, logger, notify
 from icm.path import NEXT_RUN
 from main import run_icm
 
@@ -25,7 +25,7 @@ def set_next_run(previous_run: datetime.datetime):
         pickle.dump(previous_run.replace(microsecond=0) + delta, file)
 
 
-def run_on(date: datetime.datetime, fun: Callable[[], T], check_every_seconds: float = 3600) -> T:
+def run_on(fun: Callable[[], T], date: datetime.datetime, check_every_seconds: float = 3600) -> T:
     """
     Run a function on a specific date and time.
 
@@ -47,15 +47,47 @@ def run_on(date: datetime.datetime, fun: Callable[[], T], check_every_seconds: f
     return fun()
 
 
+def try_to_run(fun: Callable[[], T], retries: int, retry_every_seconds: float = 60) -> T:
+    """
+    Call a function. Retrying multiple times if it raises an exception until it succeeds.
+
+    Args:
+        fun (Callable[[], T]): The function to call which might throw an exception.
+        retries (int, optional): Number of times to try to call the function (the first call is not calculated).
+        retry_every_seconds (float, optional): The number of seconds to sleep between each retry call. Defaults to 60.
+
+    Returns:
+        T: The return value of the function
+    """
+    result = None
+    for retry in range(retries + 1):
+        try:
+            result = fun()
+            break
+        except Exception as e:
+            if retry >= retries:
+                notify(str(e))
+                raise
+            else:
+                logger.debug(f"{retries - retry} {'retry' if retries - retry == 1 else 'retries'} left.")
+                logger.debug(f"Trying again in {datetime.timedelta(seconds=retry_every_seconds)}.")
+                time.sleep(retry_every_seconds)
+    return cast(T, result)
+
+
 def run_scheduler():
+    def _run_icm():
+        new_record = try_to_run(
+            run_icm,
+            config["scheduler"]["retries"],
+            config["scheduler"]["retry_every_minutes"] * 60,
+        )
+        set_next_run(new_record.date)
+
     while True:
         next_run = get_next_run()
         logger.debug(f"Scheduled to run on {next_run.strftime(datetime_format())}.")
-        run_on(
-            next_run,
-            lambda: set_next_run(run_icm().date),
-            config["scheduler"]["check_every_hours"] * 3600,
-        )
+        run_on(_run_icm, next_run, config["scheduler"]["check_every_hours"] * 3600)
 
 
 if __name__ == "__main__":
