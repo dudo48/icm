@@ -156,5 +156,4 @@ cython_debug/
 
 .python-version
 config.toml
-database/
-log/
+data/
