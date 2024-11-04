@@ -14,12 +14,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
-from sqlalchemy import select
 from webdriver_manager.chrome import ChromeDriverManager
 
 from icm import css_selector, url
 from icm.config import config
-from icm.database import Session
 from icm.logger import logger
 from icm.record import Record
 
@@ -31,7 +29,7 @@ def type_slowly(element: WebElement, text: str):
 
 
 @contextlib.contextmanager
-def login(headless: bool = True):
+def logged_in_scraper(headless: bool = True):
     """Context manager that yields an authenticated scraper."""
     options = Options()
     if headless:
@@ -123,16 +121,9 @@ class Scraper:
         logger.debug("Retrieving renewal date...")
         renewal_date = self._get_renewal_date()
 
-        consumption_since = consumed_units
-        with Session() as session:
-            latest_record = session.scalars(select(Record).order_by(Record.date.desc())).first()
-            if latest_record and latest_record.renewal_date > date:
-                consumption_since = consumed_units - latest_record.consumed_units
-
         return Record(
             date=date,
             renewal_date=renewal_date,
             remaining_units=remaining_units,
             consumed_units=consumed_units,
-            consumption_since=consumption_since,
         )
