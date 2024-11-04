@@ -1,28 +1,27 @@
 import datetime
 import math
-import pickle
 import time
 from collections.abc import Callable
 from typing import TypeVar, cast
 
+from sqlalchemy import select
+
 from icm.config import config
+from icm.database import Session
 from icm.logger import datetime_format, logger, notify
-from icm.path import NEXT_RUN
+from icm.record import Record
 from main import run_icm
 
 T = TypeVar("T")
 
+
 def get_next_run() -> datetime.datetime:
-    if not NEXT_RUN.exists():
+    delta = datetime.timedelta(hours=config["scheduler"]["run_every_hours"])
+    with Session() as session:
+        record = session.scalars(select(Record).order_by(Record.date.desc())).first()
+        if record:
+            return record.date + delta
         return datetime.datetime.now()
-    with open(NEXT_RUN, "rb") as file:
-        return cast(datetime.datetime, pickle.load(file))
-
-
-def set_next_run(previous_run: datetime.datetime):
-    with open(NEXT_RUN, "wb") as file:
-        delta = datetime.timedelta(hours=config["scheduler"]["run_every_hours"])
-        pickle.dump(previous_run.replace(microsecond=0) + delta, file)
 
 
 def run_on(fun: Callable[[], T], date: datetime.datetime, check_every_seconds: float = 3600) -> T:
@@ -77,12 +76,11 @@ def try_to_run(fun: Callable[[], T], retries: int, retry_every_seconds: float = 
 
 def run_scheduler():
     def _run_icm():
-        new_record = try_to_run(
+        return try_to_run(
             run_icm,
             config["scheduler"]["retries"],
             config["scheduler"]["retry_every_minutes"] * 60,
         )
-        set_next_run(new_record.date)
 
     while True:
         next_run = get_next_run()

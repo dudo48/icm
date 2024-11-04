@@ -35,12 +35,12 @@ def run_icm(headless: bool = True):
     try:
         with logged_in_scraper(headless=headless) as scraper, Session() as session:
             new_record = scraper.create_record()
+            check_warnings(new_record)
             logger.debug("Adding record to database...")
             session.add(new_record)
             session.commit()
             logger.debug("Creating report...")
             create_report(session.scalars(select(Record).order_by(Record.date.desc()).limit(5)))
-            check_warnings(new_record)
             return new_record
     except Exception as e:
         logger.exception(e)
