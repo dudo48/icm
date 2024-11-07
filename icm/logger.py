@@ -1,32 +1,27 @@
-import datetime
 import logging
-import os
+import subprocess
 
-from pytz import timezone
-
-import paths
-from constants import TIMEZONE
+from icm import path
 
 
-# to set the logger to a custom timezone
-def converter(*args):
-    return datetime.datetime.now(timezone(TIMEZONE)).timetuple()
+def datetime_format() -> str:
+    return "%Y-%m-%d %I:%M:%S %p"
+
+
+def notify(message: str):
+    return subprocess.Popen(["notify-send", "Internet Consumption Manager", message])
 
 
 # attaches and configures the handlers for the logger
 def configure_logger():
-    logging.Formatter.converter = converter
-
     logger.setLevel(logging.DEBUG)
-    logger_formatter = logging.Formatter(
-        "[%(asctime)s] %(message)s", "%Y-%m-%d %I:%M:%S %p")
+    logger_formatter = logging.Formatter("[%(asctime)s] %(message)s", datetime_format())
 
     console_handle = logging.StreamHandler()
     console_handle.setLevel(logging.DEBUG)
     console_handle.setFormatter(logger_formatter)
 
-    os.makedirs(os.path.dirname(paths.log), exist_ok=True)
-    file_handle = logging.FileHandler(paths.log, 'w')
+    file_handle = logging.FileHandler(path.LOG, "w")
     file_handle.setLevel(logging.DEBUG)
     file_handle.setFormatter(logger_formatter)
 

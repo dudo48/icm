@@ -1,0 +1,16 @@
+[credentials]
+number = ""
+password = ""
+
+[scheduler]
+run_every_hours = 24
+check_every_hours = 1
+retries = 2
+retry_every_minutes = 5
+
+[subscription]
+lifespan = 30 # days
+
+[warning]
+remaining_days = 5   # warn if remaining days is less than this
+remaining_units = 15 # warn if remaining units is less than this
