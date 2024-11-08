@@ -29,7 +29,6 @@ class Record(Base):
             "Renewal Date": self.renewal_date.strftime(DATETIME_FORMAT),
             "Remaining Units": f"{self.remaining_units:.2f}",
             "Consumed Units": f"{self.consumed_units:.2f}",
-            "Projected Consumption (Daily)": f"{self.projected_consumption:.2f}",
         }
 
         key_align = len(max(data_dict.keys(), key=len)) + 1
@@ -45,7 +44,3 @@ class Record(Base):
     @property
     def package_size(self) -> float:
         return self.remaining_units + self.consumed_units
-
-    @property
-    def projected_consumption(self) -> float:
-        return self.remaining_units / (self.time_left.total_seconds() / 86400)
