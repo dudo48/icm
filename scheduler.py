@@ -4,7 +4,7 @@ import time
 from collections.abc import Callable
 from typing import TypeVar, cast
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from icm.utility import DATETIME_FORMAT
 from icm.config import config
@@ -19,7 +19,11 @@ T = TypeVar("T")
 def get_next_run() -> datetime.datetime:
     delta = datetime.timedelta(hours=config["scheduler"]["run_every_hours"])
     with Session() as session:
-        record = session.scalars(select(Record).order_by(Record.date.desc())).first()
+        record = session.scalars(
+            select(Record).where(
+                Record.date == select(func.max(Record.date)).scalar_subquery()
+            )
+        ).first()
         if record:
             return record.date + delta
         return datetime.datetime.now()
