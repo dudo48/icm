@@ -2,7 +2,6 @@ from datetime import datetime
 
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from icm.config import config
 from icm.utility import DATETIME_FORMAT
 
 
@@ -31,7 +30,6 @@ class Record(Base):
             "Renewal Days Left",
             "Remaining Units:",
             "Consumed Units:",
-            "Average Consumption (Daily):",
             "Projected Consumption (Daily):",
         ]
         values = [
@@ -40,7 +38,6 @@ class Record(Base):
             f"{self.days_left:.1f}",
             f"{self.remaining_units:.2f}",
             f"{self.consumed_units:.2f}",
-            f"{self.average_consumption:.2f}",
             f"{self.projected_consumption:.2f}",
         ]
 
@@ -57,10 +54,6 @@ class Record(Base):
     @property
     def package_size(self) -> float:
         return self.remaining_units + self.consumed_units
-
-    @property
-    def average_consumption(self) -> float:
-        return self.consumed_units / (config["subscription"]["lifespan"] - self.days_left)
 
     @property
     def projected_consumption(self) -> float:
