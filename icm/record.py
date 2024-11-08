@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from icm.config import config
-from icm.logger import datetime_format
+from icm.utility import DATETIME_FORMAT
 
 
 class Base(DeclarativeBase):
@@ -35,8 +35,8 @@ class Record(Base):
             "Projected Consumption (Daily):",
         ]
         values = [
-            self.date.strftime(datetime_format()),
-            self.renewal_date.strftime(datetime_format()),
+            self.date.strftime(DATETIME_FORMAT),
+            self.renewal_date.strftime(DATETIME_FORMAT),
             f"{self.days_left:.1f}",
             f"{self.remaining_units:.2f}",
             f"{self.consumed_units:.2f}",

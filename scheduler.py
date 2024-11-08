@@ -6,9 +6,10 @@ from typing import TypeVar, cast
 
 from sqlalchemy import select
 
+from icm.utility import DATETIME_FORMAT
 from icm.config import config
 from icm.database import Session
-from icm.logger import datetime_format, logger, notify
+from icm.logger import logger, notify
 from icm.record import Record
 from main import run_icm
 
@@ -84,7 +85,7 @@ def run_scheduler():
 
     while True:
         next_run = get_next_run()
-        logger.debug(f"Scheduled to run on {next_run.strftime(datetime_format())}.")
+        logger.debug(f"Scheduled to run on {next_run.strftime(DATETIME_FORMAT)}.")
         run_on(_run_icm, next_run, config["scheduler"]["check_every_hours"] * 3600)
 
 
