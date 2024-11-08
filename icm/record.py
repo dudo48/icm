@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -27,7 +27,6 @@ class Record(Base):
         keys = [
             "Date:",
             "Renewal Date:",
-            "Renewal Days Left",
             "Remaining Units:",
             "Consumed Units:",
             "Projected Consumption (Daily):",
@@ -35,7 +34,6 @@ class Record(Base):
         values = [
             self.date.strftime(DATETIME_FORMAT),
             self.renewal_date.strftime(DATETIME_FORMAT),
-            f"{self.days_left:.1f}",
             f"{self.remaining_units:.2f}",
             f"{self.consumed_units:.2f}",
             f"{self.projected_consumption:.2f}",
@@ -48,8 +46,8 @@ class Record(Base):
         )
 
     @property
-    def days_left(self) -> float:
-        return (self.renewal_date - self.date).total_seconds() / 86400
+    def time_left(self) -> timedelta:
+        return self.renewal_date - self.date
 
     @property
     def package_size(self) -> float:
@@ -57,4 +55,4 @@ class Record(Base):
 
     @property
     def projected_consumption(self) -> float:
-        return self.remaining_units / self.days_left
+        return self.remaining_units / (self.time_left.total_seconds() / 86400)

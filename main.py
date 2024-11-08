@@ -1,3 +1,4 @@
+import datetime
 from typing import Iterable
 
 from sqlalchemy import select
@@ -12,9 +13,10 @@ from icm.scraper import logged_in_scraper
 
 def check_warnings(record: Record):
     warnings: list[str] = []
-    if record.days_left < config["warning"]["remaining_days"]:
+    time_left = record.time_left - datetime.timedelta(microseconds=record.time_left.microseconds)
+    if time_left < datetime.timedelta(days=config["warning"]["remaining_days"]):
         warnings.append(
-            f"Only {record.days_left:.1f} days left. Remember to recharge your internet."
+            f"Only {time_left} left. Remember to recharge your internet."
         )
     if record.remaining_units < config["warning"]["remaining_units"]:
         warnings.append(
