@@ -13,7 +13,7 @@ from icm.scraper import logged_in_scraper
 
 def check_warnings(record: Record):
     warnings: list[str] = []
-    time_left = record.time_left - datetime.timedelta(microseconds=record.time_left.microseconds)
+    time_left = record.renewal_date - record.date
     if time_left < datetime.timedelta(days=config["warning"]["remaining_days"]):
         warnings.append(
             f"Only {time_left} left. Remember to recharge your internet."

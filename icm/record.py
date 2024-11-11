@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -36,10 +36,6 @@ class Record(Base):
         return "\n".join(
             (k + ":").ljust(key_align) + v.rjust(value_align) for k, v in data_dict.items()
         )
-
-    @property
-    def time_left(self) -> timedelta:
-        return self.renewal_date - self.date
 
     @property
     def package_size(self) -> float:
