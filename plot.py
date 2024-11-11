@@ -44,9 +44,18 @@ def show_plot(records_list: list[pd.DataFrame]):
     colormap = LinearSegmentedColormap.from_list("", ["green", "yellow", "red"], 16)
     records = records_list[-1]
     minmax_records = records.loc[[records["date"].idxmin(), records["date"].idxmax()]]
+    max_record = minmax_records.iloc[1]
 
     axes[0].plot(minmax_records["date"], minmax_records["projected_remaining_units"], linestyle="--", label="Projected remaining units")
     axes[0].plot(records["date"], records["remaining_units"], label="Remaining units")
+    axes[0].annotate(
+        f"{max_record["projected_remaining_units"]:.2f}",
+        xy=(max_record["date"], max_record["projected_remaining_units"]),
+    )
+    axes[0].annotate(
+        f"{max_record["remaining_units"]:.2f}",
+        xy=(max_record["date"], max_record["remaining_units"]),
+    )
 
     axes[1].bar(
         records["date"][:-1],
@@ -60,6 +69,14 @@ def show_plot(records_list: list[pd.DataFrame]):
     )
     axes[1].plot(records["date"], records["projected_daily_consumed_units"], linestyle="--", label="Projected daily consumption")
     axes[1].plot(records["date"], records["average_daily_consumed_units"], label="Average daily consumption")
+    axes[1].annotate(
+        f"{max_record["projected_daily_consumed_units"]:.2f}",
+        xy=(max_record["date"], max_record["projected_daily_consumed_units"]),
+    )
+    axes[1].annotate(
+        f"{max_record["average_daily_consumed_units"]:.2f}",
+        xy=(max_record["date"], max_record["average_daily_consumed_units"]),
+    )
 
     min_date = minmax_records.iloc[0]["date"]
     max_date = minmax_records.iloc[1]["date"]
@@ -73,6 +90,7 @@ def show_plot(records_list: list[pd.DataFrame]):
     figure.suptitle(
         f"{len(records)} record(s) from {min_date.strftime(DATETIME_FORMAT)} to {max_date.strftime(DATETIME_FORMAT)}"
     )
+    figure.supxlabel(f"Time until renewal: {str(max_record["time_left"]).split(".")[0]}")
     plot.show()
 
 
