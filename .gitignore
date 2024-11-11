@@ -157,3 +157,4 @@ cython_debug/
 .python-version
 config.toml
 data/
+.vscode/
