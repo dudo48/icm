@@ -5,22 +5,24 @@ import pandas as pd
 from matplotlib.axes import Axes
 from matplotlib.colors import LinearSegmentedColormap, TwoSlopeNorm
 from matplotlib.figure import Figure
-from sqlalchemy import Select, func, select
+from sqlalchemy import Select
 
 from icm.database import engine
+from icm.path import REPORT, REPORT_VISUAL
 from icm.record import Record
-from icm.utility import DATETIME_FORMAT
+from icm.utility import DATETIME_SHORT_FORMAT
 
 T = TypeVar("T")
 
 
-def get_dataframes(query: Select[tuple[Record]]):
-    query = query.order_by(Record.date)
+def get_dataframe(query: Select[tuple[Record]]) -> pd.DataFrame:
     dataframes: list[pd.DataFrame] = []
-    for _, df in pd.read_sql(query, engine).groupby("renewal_date"):
+    combined_df = pd.read_sql(query, engine).sort_values("date")
+    for _, df in combined_df.groupby("renewal_date"):
         df["time_left"] = df["renewal_date"] - df["date"]
         df["delta_consumed_units"] = df["consumed_units"].diff()
         df["delta_date"] = df["date"].diff()
+        df["delta_date_hours"] = df["delta_date"] / pd.to_timedelta(1, "h")
         df["projected_delta_consumed_units"] = df["remaining_units"] * (df["delta_date"] / df["time_left"])
         df["projected_delta_consumed_units_ratio"] = df["delta_consumed_units"] / df["projected_delta_consumed_units"]
         df["days_left"] = df["time_left"] / pd.to_timedelta(1, "D")
@@ -35,14 +37,13 @@ def get_dataframes(query: Select[tuple[Record]]):
         )
 
         dataframes.append(df)
+    return pd.concat(dataframes)
 
-    return dataframes
 
-
-def show_plot(records_list: list[pd.DataFrame]):
+def create_plot(records: pd.DataFrame):
     figure, axes = cast(tuple[Figure, Sequence[Axes]], plot.subplots(2, sharex=True))
     colormap = LinearSegmentedColormap.from_list("", ["green", "yellow", "red"], 16)
-    records = records_list[-1]
+
     minmax_records = records.loc[[records["date"].idxmin(), records["date"].idxmax()]]
     max_record = minmax_records.iloc[1]
 
@@ -88,21 +89,48 @@ def show_plot(records_list: list[pd.DataFrame]):
         axis.legend()
 
     figure.suptitle(
-        f"{len(records)} record(s) from {min_date.strftime(DATETIME_FORMAT)} to {max_date.strftime(DATETIME_FORMAT)}"
+        f"{len(records)} record(s) from {min_date.strftime(DATETIME_SHORT_FORMAT)} to {max_date.strftime(DATETIME_SHORT_FORMAT)}"
     )
     figure.supxlabel(f"Time until renewal: {str(max_record["time_left"]).split(".")[0]}")
+    return figure
+
+
+def save_plot(records: pd.DataFrame):
+    figure = create_plot(records)
+    figure.set_size_inches(24, 10)
+    figure.savefig(REPORT_VISUAL, dpi=100, bbox_inches="tight")
+
+
+def save_text(records: pd.DataFrame):
+    """
+    Save the textual report of the records present in the given dataframe to the report file.
+
+    Args:
+        records (pd.DataFrame): DataFrame of records.
+    """
+    columns = {
+        "date": "Date",
+        "delta_date_hours": "Δ Date (Hours)",
+        "remaining_units": "Remaining",
+        "consumed_units": "Consumed",
+        "delta_consumed_units": "Δ Consumed",
+        "average_daily_consumed_units": "Avg. Daily",
+        "projected_daily_consumed_units": "Projected Daily",
+        "days_left": "Days Left",
+    }
+
+    records.sort_values("date", ascending=False).to_string(
+        REPORT,
+        columns=list(columns.keys()),
+        header=[f"|{col}" for col in columns.values()],
+        col_space=8,
+        formatters={"date": lambda d: d.strftime(DATETIME_SHORT_FORMAT)},
+        float_format="{:.2f}".format,
+        justify="center",
+        index=False,
+    )
+
+
+def show_plot(records: pd.DataFrame):
+    create_plot(records)
     plot.show()
-
-
-def main():
-    latest_renewal_date = select(func.max(Record.renewal_date)).scalar_subquery()
-    query = select(Record).where(Record.renewal_date == latest_renewal_date)
-    records_list = get_dataframes(query)
-    if records_list:
-        show_plot(records_list)
-    else:
-        print("No records were found.")
-
-
-if __name__ == "__main__":
-    main()
