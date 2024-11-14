@@ -156,5 +156,7 @@ cython_debug/
 
 .python-version
 config.toml
-data/
+data/*
+!data/report_template.html
+!data/report_style.css
 .vscode/

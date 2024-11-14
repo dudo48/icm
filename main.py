@@ -40,7 +40,7 @@ def run_icm(headless: bool = True):
                 select(Record).where(Record.renewal_date == new_record.renewal_date)
             )
             logger.debug("Creating report...")
-            reporter.save_text(package_records)
+            reporter.save_table(package_records)
             logger.debug("Creating visual report...")
             reporter.save_plot(package_records)
 
