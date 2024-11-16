@@ -19,7 +19,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from icm import css_selector, url
 from icm.config import config
 from icm.logger import logger
-from icm.record import Record
+from icm.models import Record
 
 
 def type_slowly(element: WebElement, text: str):

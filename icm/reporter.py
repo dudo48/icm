@@ -9,7 +9,7 @@ from sqlalchemy import Select
 
 from icm.database import engine
 from icm.path import REPORT_TABLE, REPORT_TABLE_TEMPLATE, REPORT_VISUAL
-from icm.record import Record
+from icm.models import Record
 from icm.utility import DATETIME_SHORT_FORMAT
 
 T = TypeVar("T")

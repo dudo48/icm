@@ -6,7 +6,7 @@ from icm import reporter
 from icm.config import config
 from icm.database import Session
 from icm.logger import logger, notify
-from icm.record import Record
+from icm.models import Record
 from icm.scraper import logged_in_scraper
 
 
