@@ -2,6 +2,7 @@ import pickle
 from datetime import datetime
 from typing import Any
 
+from sqlalchemy import inspect
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -9,6 +10,9 @@ class Base(DeclarativeBase):
     def _repr(self, *fields: str) -> str:
         fields_info = ", ".join([f"{field}={getattr(self, field)!r}" for field in fields])
         return f"{self.__class__.__name__}({fields_info})"
+
+    def asdict(self) -> dict:
+        return {column.name: getattr(self, column.name) for column in inspect(self.__class__).columns}
 
 
 class Record(Base):

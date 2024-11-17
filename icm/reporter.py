@@ -1,24 +1,22 @@
-from typing import Any, Sequence, TypeVar, cast
+from typing import Any, Iterable, Sequence, TypeVar, cast
 
 import matplotlib.pyplot as plot
 import pandas as pd
 from matplotlib.axes import Axes
 from matplotlib.colors import LinearSegmentedColormap, TwoSlopeNorm
 from matplotlib.figure import Figure
-from sqlalchemy import Select
 
-from icm.database import engine
-from icm.path import REPORT_TABLE, REPORT_TABLE_TEMPLATE, REPORT_VISUAL
 from icm.models import Record
+from icm.path import REPORT_TABLE, REPORT_TABLE_TEMPLATE, REPORT_VISUAL
 from icm.utility import DATETIME_SHORT_FORMAT
 
 T = TypeVar("T")
 
 
-def get_dataframe(query: Select[tuple[Record]]) -> pd.DataFrame:
+def get_dataframe(records: Iterable[Record]) -> pd.DataFrame:
+    combined_dataframe = pd.DataFrame([record.asdict() for record in records]).sort_values("date")
     dataframes: list[pd.DataFrame] = []
-    combined_df = pd.read_sql(query, engine).sort_values("date")
-    for _, df in combined_df.groupby("renewal_date"):
+    for _, df in combined_dataframe.groupby("renewal_date"):
         df["time_left"] = df["renewal_date"] - df["date"]
         df["delta_consumed_units"] = df["consumed_units"].diff()
         df["delta_date"] = df["date"].diff()
@@ -35,7 +33,6 @@ def get_dataframe(query: Select[tuple[Record]]) -> pd.DataFrame:
         df["predicted_remaining_units"] = first["remaining_units"] - (
             first["predicted_daily_consumed_units"] * (first["days_left"] - df["days_left"])
         )
-
         dataframes.append(df)
     return pd.concat(dataframes)
 

@@ -6,9 +6,10 @@ from collections.abc import Callable
 from typing import Any, TypeVar
 
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from icm.config import config
-from icm.database import Session
+from icm.database import SessionMaker
 from icm.logger import logger, notify
 from icm.models import State
 from icm.utility import DATETIME_FORMAT
@@ -17,16 +18,13 @@ from main import run_icm
 T = TypeVar("T")
 
 
-def get_state(key: str, default: Any) -> Any:
-    with Session() as session:
-        state = session.scalars(select(State).where(State.key == key)).first()
-        return state.loaded_value if state else default
+def get_state(session: Session, key: str, default: Any) -> Any:
+    state = session.scalars(select(State).where(State.key == key)).first()
+    return state.loaded_value if state else default
 
 
-def set_state(key: str, value: Any):
-    with Session() as session:
-        session.merge(State(key=key, value=pickle.dumps(value)))
-        session.commit()
+def set_state(session: Session, key: str, value: Any):
+    session.merge(State(key=key, value=pickle.dumps(value)))
 
 
 def run_on(fun: Callable[[], T], date: datetime.datetime, check_every: datetime.timedelta) -> T:
@@ -53,26 +51,29 @@ def run_on(fun: Callable[[], T], date: datetime.datetime, check_every: datetime.
 
 def run_scheduler():
     def _run_icm():
-        total_retries: int = config["scheduler"]["retries"]
-        retries_left: int = get_state("retries_left", total_retries)
-        next_run_delta = datetime.timedelta(hours=config["scheduler"]["run_every_hours"])
-        new_retries_left = total_retries
-        if retries_left >= 0:
-            try:
-                run_icm()
-            except Exception as e:
-                if retries_left == 0:
-                    logger.debug("No more retries left. Skipping this run...")
-                    notify(str(e))
-                else:
-                    next_run_delta = datetime.timedelta(minutes=config["scheduler"]["retry_every_minutes"])
-                    new_retries_left = retries_left - 1
-                    logger.debug(f"{retries_left} {'retry' if retries_left == 1 else 'retries'} left.")
-        set_state("retries_left", new_retries_left)
-        set_state("next_run", datetime.datetime.now() + next_run_delta)
+        with SessionMaker() as session:
+            total_retries: int = config["scheduler"]["retries"]
+            retries_left: int = get_state(session, "retries_left", total_retries)
+            new_retries_left = total_retries
+            next_run_delta = datetime.timedelta(hours=config["scheduler"]["run_every_hours"])
+            if retries_left >= 0:
+                try:
+                    run_icm(session)
+                except Exception as e:
+                    if retries_left == 0:
+                        logger.debug("No more retries left. Skipping this run...")
+                        notify(str(e))
+                    else:
+                        next_run_delta = datetime.timedelta(minutes=config["scheduler"]["retry_every_minutes"])
+                        new_retries_left = retries_left - 1
+                        logger.debug(f"{retries_left} {'retry' if retries_left == 1 else 'retries'} left.")
+            set_state(session, "retries_left", new_retries_left)
+            set_state(session, "next_run", datetime.datetime.now() + next_run_delta)
+            session.commit()
 
     while True:
-        next_run: datetime.datetime = get_state("next_run", datetime.datetime.now())
+        with SessionMaker() as session:
+            next_run: datetime.datetime = get_state(session, "next_run", datetime.datetime.now())
         logger.debug(f"Scheduled to run on {next_run.strftime(DATETIME_FORMAT)}.")
         run_on(_run_icm, next_run, datetime.timedelta(hours=config["scheduler"]["check_every_hours"]))
 

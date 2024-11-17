@@ -1,10 +1,11 @@
 import datetime
 
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from icm import reporter
 from icm.config import config
-from icm.database import Session
+from icm.database import SessionMaker
 from icm.logger import logger, notify
 from icm.models import Record
 from icm.scraper import logged_in_scraper
@@ -27,22 +28,21 @@ def check_warnings(record: Record):
         notify(warning)
 
 
-def run_icm(headless: bool = True):
+def run_icm(session: Session, headless: bool = True):
     try:
-        with logged_in_scraper(headless=headless) as scraper, Session() as session:
+        with logged_in_scraper(headless=headless) as scraper:
             new_record = scraper.create_record()
             check_warnings(new_record)
-            logger.debug("Adding record to database...")
             session.add(new_record)
-            session.commit()
+            session.flush()
+            logger.debug("Record created successfully...")
 
-            package_records = reporter.get_dataframe(
-                select(Record).where(Record.renewal_date == new_record.renewal_date)
-            )
+            package_records = session.scalars(select(Record).where(Record.renewal_date == new_record.renewal_date))
+            dataframe = reporter.get_dataframe(package_records)
             logger.debug("Creating report...")
-            reporter.save_table(package_records)
+            reporter.save_table(dataframe)
             logger.debug("Creating visual report...")
-            reporter.save_plot(package_records)
+            reporter.save_plot(dataframe)
 
             return new_record
     except Exception as e:
@@ -51,4 +51,7 @@ def run_icm(headless: bool = True):
 
 
 if __name__ == "__main__":
-    run_icm()
+    with SessionMaker() as session:
+        logger.debug(run_icm(session))
+        session.rollback()
+        logger.debug("Record was not added to database...")
