@@ -2,10 +2,7 @@ import logging
 import subprocess
 
 from icm import path
-
-
-def datetime_format() -> str:
-    return "%Y-%m-%d %I:%M:%S %p"
+from icm.utility import DATETIME_FORMAT
 
 
 def notify(message: str):
@@ -15,7 +12,7 @@ def notify(message: str):
 # attaches and configures the handlers for the logger
 def configure_logger():
     logger.setLevel(logging.DEBUG)
-    logger_formatter = logging.Formatter("[%(asctime)s] %(message)s", datetime_format())
+    logger_formatter = logging.Formatter("[%(asctime)s] %(message)s", DATETIME_FORMAT)
 
     console_handle = logging.StreamHandler()
     console_handle.setLevel(logging.DEBUG)

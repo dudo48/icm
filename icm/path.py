@@ -10,4 +10,6 @@ DATA_FOLDER.mkdir(exist_ok=True)
 
 DATABASE = DATA_FOLDER.joinpath("database.db")
 LOG = DATA_FOLDER.joinpath("log.txt")
-REPORT = DATA_FOLDER.joinpath("report.txt")
+REPORT_TABLE_TEMPLATE = DATA_FOLDER.joinpath("report_template.html")
+REPORT_TABLE = DATA_FOLDER.joinpath("report.html")
+REPORT_VISUAL = DATA_FOLDER.joinpath("report.png")

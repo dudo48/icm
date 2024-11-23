@@ -1,0 +1,32 @@
+body{
+    background-color: #1a1a1d;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: monospace;
+    color: #ffffff;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(166, 77, 121, 0.15);
+    text-align: right;
+}
+
+table thead tr {
+    background-color: #6a1e55;
+}
+
+table th,
+table td {
+    padding: 12px 15px;
+}
+
+table tbody tr {
+    border-bottom: 1px solid #ffffff;
+    background-color: #1a1a1d;
+}
+
+table tbody tr:nth-of-type(even) {
+    background-color: #25252a;
+}
